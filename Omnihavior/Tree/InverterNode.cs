@@ -29,8 +29,8 @@ public class InverterNode<TInputData> : IBehaviorNode<TInputData>
     return NodeStatus.Error;
   }
 
-  public void Reset()
+  public void Reset(TInputData input)
   {
-    _child.Reset();
+    _child.Reset(input);
   }
 }

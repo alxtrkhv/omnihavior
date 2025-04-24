@@ -46,8 +46,8 @@ public class InterceptorNode<TInputData> : IBehaviorNode<TInputData>
     };
   }
 
-  public void Reset()
+  public void Reset(TInputData input)
   {
-    _child.Reset();
+    _child.Reset(input);
   }
 }

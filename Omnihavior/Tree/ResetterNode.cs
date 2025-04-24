@@ -34,15 +34,15 @@ public class ResetterNode<TInputData> : IBehaviorNode<TInputData>
       case (NodeStatus.Failure, _) when (_rules & ResetRules.OnFailure) != 0:
       case (NodeStatus.Running, _) when (_rules & ResetRules.OnRunning) != 0:
       case (NodeStatus.Error, _) when (_rules & ResetRules.OnError) != 0:
-        _child.Reset();
+        _child.Reset(input);
         break;
     }
 
     return status;
   }
 
-  public void Reset()
+  public void Reset(TInputData input)
   {
-    _child.Reset();
+    _child.Reset(input);
   }
 }

@@ -64,7 +64,8 @@ public class LambdaNodeTests : BaseNodeTests<LambdaNode<TestInput>>
   public void Reset_ExecutesResetAction_WhenProvided()
   {
     var node = CreateTestNode();
-    node.Reset();
+    var data = CreateInputData();
+    node.Reset(data);
     Assert.That(_resetActionExecuted, Is.True);
   }
 
@@ -72,7 +73,7 @@ public class LambdaNodeTests : BaseNodeTests<LambdaNode<TestInput>>
   public void Reset_DoesNothing_WhenNoResetActionProvided()
   {
     var node = new LambdaNode<TestInput>(_ => NodeStatus.Success, null);
-    Assert.DoesNotThrow(() => node.Reset());
+    Assert.DoesNotThrow(() => node.Reset(new()));
     Assert.That(_resetActionExecuted, Is.False);
   }
 
@@ -90,7 +91,7 @@ public class LambdaNodeTests : BaseNodeTests<LambdaNode<TestInput>>
       node.Tick(data);
     }
 
-    node.Reset();
+    node.Reset(data);
 
     Assert.That(resetCalled, Is.True, "Reset action should have been called.");
   }

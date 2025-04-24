@@ -45,12 +45,12 @@ public class SequenceNode<TInputData> : IBehaviorNode<TInputData>
     return failed ? NodeStatus.Failure : NodeStatus.Success;
   }
 
-  public void Reset()
+  public void Reset(TInputData input)
   {
     _currentChildIndex = 0;
 
     foreach (var child in _children) {
-      child.Reset();
+      child.Reset(input);
     }
   }
 }

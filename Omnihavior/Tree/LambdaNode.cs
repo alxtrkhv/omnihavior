@@ -19,7 +19,7 @@ public class LambdaNode<TInputData> : IBehaviorNode<TInputData>
     return _lambda(input);
   }
 
-  public void Reset()
+  public void Reset(TInputData input)
   {
     _reset?.Invoke();
   }

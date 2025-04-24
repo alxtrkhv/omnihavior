@@ -79,11 +79,11 @@ public class ConditionalNode<TInputData> : IBehaviorNode<TInputData>
     return NodeStatus.Success;
   }
 
-  public void Reset()
+  public void Reset(TInputData input)
   {
-    _condition.Reset();
-    _positiveBody.Reset();
-    _negativeBody?.Reset();
+    _condition.Reset(input);
+    _positiveBody.Reset(input);
+    _negativeBody?.Reset(input);
 
     _conditionCache = null;
   }

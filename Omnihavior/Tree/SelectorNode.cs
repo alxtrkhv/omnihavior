@@ -45,12 +45,12 @@ public class SelectorNode<TInputData> : IBehaviorNode<TInputData>
     return succeeded ? NodeStatus.Success : NodeStatus.Failure;
   }
 
-  public void Reset()
+  public void Reset(TInputData input)
   {
     _currentChildIndex = 0;
 
     foreach (var child in _children) {
-      child.Reset();
+      child.Reset(input);
     }
   }
 }

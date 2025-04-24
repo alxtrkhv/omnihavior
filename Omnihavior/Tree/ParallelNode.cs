@@ -56,10 +56,10 @@ public class ParallelNode<TInputData> : IBehaviorNode<TInputData>
     return running ? NodeStatus.Running : NodeStatus.Success;
   }
 
-  public void Reset()
+  public void Reset(TInputData input)
   {
     foreach (var child in _children) {
-      child.Reset();
+      child.Reset(input);
     }
   }
 }

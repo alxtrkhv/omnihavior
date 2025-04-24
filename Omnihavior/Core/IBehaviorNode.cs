@@ -11,5 +11,5 @@ public enum NodeStatus
 public interface IBehaviorNode<TInputData>
 {
   public NodeStatus Tick(TInputData input);
-  public void Reset();
+  public void Reset(TInputData input);
 }

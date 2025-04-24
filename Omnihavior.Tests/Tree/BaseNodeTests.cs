@@ -42,7 +42,7 @@ public abstract class BaseNodeTests<TNode, TInputData> where TNode : IBehaviorNo
       node.Tick(data);
     }
 
-    node.Reset();
+    node.Reset(data);
 
     Assert.That(node, Is.Not.Default, "Node tests should provide an instance of the node to test reset.");
     var actualChildrenCount = Math.Min(childrenCount ?? children.Count, children.Count);
