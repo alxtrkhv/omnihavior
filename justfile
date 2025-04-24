@@ -1,6 +1,12 @@
 set unstable
 set script-interpreter := ['uv', 'run', '--script']
 
+test:
+  dotnet test Omnihavior.Tests/Omnihavior.Tests.csproj
+
+build: test
+  dotnet build --configuration release Omnihavior/Omnihavior.csproj
+
 [script]
 set-version new_version:
     import re
