@@ -30,10 +30,10 @@ public class ResetterNode<TInputData> : IBehaviorNode<TInputData>
 
     switch (status, _rules) {
       case (_, ResetRules.Always):
-      case (NodeStatus.Success, _) when (_rules & ResetRules.OnSuccess) != 0:
-      case (NodeStatus.Failure, _) when (_rules & ResetRules.OnFailure) != 0:
-      case (NodeStatus.Running, _) when (_rules & ResetRules.OnRunning) != 0:
-      case (NodeStatus.Error, _) when (_rules & ResetRules.OnError) != 0:
+      case (NodeStatus.Success, _) when _rules.HasFlag(ResetRules.OnSuccess):
+      case (NodeStatus.Failure, _) when _rules.HasFlag(ResetRules.OnFailure):
+      case (NodeStatus.Running, _) when _rules.HasFlag(ResetRules.OnRunning):
+      case (NodeStatus.Error, _) when _rules.HasFlag(ResetRules.OnError):
         _child.Reset(input);
         break;
     }

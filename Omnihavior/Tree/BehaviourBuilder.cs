@@ -22,7 +22,7 @@ public partial struct BehaviourBuilder<TInputData>
     return new ParallelNode<TInputData>(children);
   }
 
-  public IBehaviorNode<TInputData> Lambda(Func<TInputData, NodeStatus> action, Action reset)
+  public IBehaviorNode<TInputData> Lambda(Func<TInputData, NodeStatus> action, Action<TInputData>? reset = null)
   {
     return new LambdaNode<TInputData>(action, reset);
   }

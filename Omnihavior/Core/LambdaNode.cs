@@ -1,14 +1,13 @@
 using System;
-using Omnihavior.Core;
 
-namespace Omnihavior.Tree;
+namespace Omnihavior.Core;
 
 public class LambdaNode<TInputData> : IBehaviorNode<TInputData>
 {
   private readonly Func<TInputData, NodeStatus> _lambda;
-  private readonly Action? _reset;
+  private readonly Action<TInputData>? _reset;
 
-  public LambdaNode(Func<TInputData, NodeStatus> lambda, Action? reset = null)
+  public LambdaNode(Func<TInputData, NodeStatus> lambda, Action<TInputData>? reset = null)
   {
     _lambda = lambda;
     _reset = reset;
@@ -21,6 +20,6 @@ public class LambdaNode<TInputData> : IBehaviorNode<TInputData>
 
   public void Reset(TInputData input)
   {
-    _reset?.Invoke();
+    _reset?.Invoke(input);
   }
 }

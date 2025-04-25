@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Omnihavior.Core;
+using Omnihavior.Tests.Mocks;
 using Omnihavior.Tree;
-using Omnihavior.Tests.Tree.Mocks;
 
 namespace Omnihavior.Tests.Tree;
 
@@ -15,7 +15,7 @@ public class ResetterNodeTests : BaseNodeTests<ResetterNode<TestInput>>
   public void SetUp()
   {
     _childResetCalled = false;
-    _mockChild = new LambdaNode<TestInput>(_ => NodeStatus.Success, () => _childResetCalled = true);
+    _mockChild = new LambdaNode<TestInput>(_ => NodeStatus.Success, _ => _childResetCalled = true);
   }
 
   protected override ResetterNode<TestInput> CreateNodeForResetTests(out int? childrenNumber,
@@ -28,7 +28,7 @@ public class ResetterNodeTests : BaseNodeTests<ResetterNode<TestInput>>
 
   private ResetterNode<TestInput> CreateSpecificNode(NodeStatus childStatus, ResetRules rules)
   {
-    _mockChild = new LambdaNode<TestInput>(_ => childStatus, () => _childResetCalled = true);
+    _mockChild = new LambdaNode<TestInput>(_ => childStatus, _ => _childResetCalled = true);
     return new(_mockChild, rules);
   }
 

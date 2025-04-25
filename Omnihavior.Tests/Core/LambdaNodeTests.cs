@@ -1,9 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
 using Omnihavior.Core;
-using Omnihavior.Tree;
-using Omnihavior.Tests.Tree.Mocks;
+using Omnihavior.Tests.Mocks;
+using Omnihavior.Tests.Tree;
 
-namespace Omnihavior.Tests.Tree;
+namespace Omnihavior.Tests.Core;
 
 [TestFixture]
 public class LambdaNodeTests : BaseNodeTests<LambdaNode<TestInput>>
@@ -11,6 +11,7 @@ public class LambdaNodeTests : BaseNodeTests<LambdaNode<TestInput>>
   private bool _lambdaExecuted;
   private bool _resetActionExecuted;
   private NodeStatus _lambdaResultStatus = NodeStatus.Success;
+  private LambdaNode<TestInput> _testNode;
 
   [SetUp]
   public void SetUp()
@@ -18,30 +19,26 @@ public class LambdaNodeTests : BaseNodeTests<LambdaNode<TestInput>>
     _lambdaExecuted = false;
     _resetActionExecuted = false;
     _lambdaResultStatus = NodeStatus.Success;
+    _testNode = new(
+      _ => {
+        _lambdaExecuted = true;
+        return _lambdaResultStatus;
+      },
+      _ => _resetActionExecuted = true
+    );
   }
 
   protected override LambdaNode<TestInput> CreateNodeForResetTests(out int? childrenNumber,
     params IReadOnlyList<IBehaviorNode<TestInput>> children)
   {
     childrenNumber = 1;
-    return new(_ => NodeStatus.Success, () => _resetActionExecuted = true);
-  }
-
-  private LambdaNode<TestInput> CreateTestNode(Action? resetAction = null)
-  {
-    return new(
-      _ => {
-        _lambdaExecuted = true;
-        return _lambdaResultStatus;
-      },
-      resetAction ?? (() => _resetActionExecuted = true)
-    );
+    return new(input => children[0].Tick(input), input => children[0].Reset(input));
   }
 
   [Test]
   public void Tick_ExecutesLambda()
   {
-    var node = CreateTestNode();
+    var node = _testNode;
     node.Tick(new());
     Assert.That(_lambdaExecuted, Is.True);
   }
@@ -55,7 +52,7 @@ public class LambdaNodeTests : BaseNodeTests<LambdaNode<TestInput>>
   public void Tick_ReturnsLambdaResult(NodeStatus expectedStatus)
   {
     _lambdaResultStatus = expectedStatus;
-    var node = CreateTestNode();
+    var node = _testNode;
     var result = node.Tick(new());
     Assert.That(result, Is.EqualTo(expectedStatus));
   }
@@ -63,7 +60,7 @@ public class LambdaNodeTests : BaseNodeTests<LambdaNode<TestInput>>
   [Test]
   public void Reset_ExecutesResetAction_WhenProvided()
   {
-    var node = CreateTestNode();
+    var node = _testNode;
     var data = CreateInputData();
     node.Reset(data);
     Assert.That(_resetActionExecuted, Is.True);
@@ -75,24 +72,5 @@ public class LambdaNodeTests : BaseNodeTests<LambdaNode<TestInput>>
     var node = new LambdaNode<TestInput>(_ => NodeStatus.Success, null);
     Assert.DoesNotThrow(() => node.Reset(new()));
     Assert.That(_resetActionExecuted, Is.False);
-  }
-
-  [Test]
-  [TestCase(0, Description = "Checks reset after no ticks.")]
-  [TestCase(1, Description = "Checks reset after one tick.")]
-  [TestCase(5, Description = "Checks reset after five ticks.")]
-  public override void Reset_AfterNumberOfTicks_ResetsAllChildren(int tickNumber)
-  {
-    var resetCalled = false;
-    var node = new LambdaNode<TestInput>(_ => NodeStatus.Success, () => resetCalled = true);
-    var data = CreateInputData();
-
-    for (var i = 0; i < tickNumber; i++) {
-      node.Tick(data);
-    }
-
-    node.Reset(data);
-
-    Assert.That(resetCalled, Is.True, "Reset action should have been called.");
   }
 }

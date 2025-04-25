@@ -1,5 +1,5 @@
 using Omnihavior.Core;
-using Omnihavior.Tests.Tree.Mocks;
+using Omnihavior.Tests.Mocks;
 using Omnihavior.Tree;
 
 namespace Omnihavior.Tests.Tree;
@@ -32,7 +32,7 @@ public abstract class BaseNodeTests<TNode, TInputData> where TNode : IBehaviorNo
     for (var i = 0; i < 10; i++) {
       var index = i;
       childrenResets.Add(false);
-      children.Add(new LambdaNode<TInputData>(_ => NodeStatus.Success, () => childrenResets[index] = true));
+      children.Add(new LambdaNode<TInputData>(_ => NodeStatus.Success, _ => childrenResets[index] = true));
     }
 
     var node = CreateNodeForResetTests(out var childrenCount, children);
