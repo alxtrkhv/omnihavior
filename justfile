@@ -1,6 +1,10 @@
 set unstable
 set script-interpreter := ['uv', 'run', '--script']
 
+[private]
+default:
+  @just --list
+
 test:
   dotnet test Omnihavior.Tests/Omnihavior.Tests.csproj
 
