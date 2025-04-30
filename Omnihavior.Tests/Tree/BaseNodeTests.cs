@@ -1,3 +1,4 @@
+using NSubstitute;
 using Omnihavior.Core;
 using Omnihavior.Tests.Mocks;
 using Omnihavior.Tree;
@@ -17,7 +18,7 @@ public abstract class BaseNodeTests<TNode> : BaseNodeTests<TNode, TestInput> whe
 public abstract class BaseNodeTests<TNode, TInputData> where TNode : IBehaviorNode<TInputData>
 {
   protected abstract TNode
-    CreateNodeForResetTests(out int? childrenNumber, params IReadOnlyList<IBehaviorNode<TInputData>> children);
+    CreateNodeForResetTests(out int? childrenNumber, params IBehaviorNode<TInputData>[] children);
 
   protected abstract TInputData CreateInputData();
 
@@ -25,14 +26,13 @@ public abstract class BaseNodeTests<TNode, TInputData> where TNode : IBehaviorNo
   [TestCase(0, Description = "Checks reset after no ticks.")]
   [TestCase(1, Description = "Checks reset after one tick.")]
   [TestCase(5, Description = "Checks reset after five ticks.")]
+  [TestCase(10, Description = "Checks reset after ten ticks.")]
   public virtual void Reset_AfterNumberOfTicks_ResetsAllChildren(int tickNumber)
   {
-    var childrenResets = new List<bool>();
-    var children = new List<IBehaviorNode<TInputData>>();
-    for (var i = 0; i < 10; i++) {
-      var index = i;
-      childrenResets.Add(false);
-      children.Add(new LambdaNode<TInputData>(_ => NodeStatus.Success, _ => childrenResets[index] = true));
+    var childrenNumber = 10;
+    var children = new IBehaviorNode<TInputData>[childrenNumber];
+    for (var i = 0; i < childrenNumber; i++) {
+      children[i] = Substitute.For<IBehaviorNode<TInputData>>();
     }
 
     var node = CreateNodeForResetTests(out var childrenCount, children);
@@ -45,11 +45,11 @@ public abstract class BaseNodeTests<TNode, TInputData> where TNode : IBehaviorNo
     node.Reset(data);
 
     Assert.That(node, Is.Not.Default, "Node tests should provide an instance of the node to test reset.");
-    var actualChildrenCount = Math.Min(childrenCount ?? children.Count, children.Count);
+    var actualChildrenCount = Math.Min(childrenCount ?? children.Length, children.Length);
 
     Assert.Multiple(() => {
         for (var i = 0; i < actualChildrenCount; i++) {
-          Assert.That(childrenResets[i], Is.True, $"Child {i} should have been reset.");
+          children[i].Received().Reset(data);
         }
       }
     );

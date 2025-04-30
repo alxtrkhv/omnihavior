@@ -9,7 +9,7 @@ namespace Omnihavior.Tests.Utility;
 public class UtilityNodeTests : BaseNodeTests<UtilityNode<TestInput>>
 {
   protected override UtilityNode<TestInput> CreateNodeForResetTests(out int? childrenNumber,
-    params IReadOnlyList<IBehaviorNode<TestInput>> children)
+    params IBehaviorNode<TestInput>[] children)
   {
     childrenNumber = null;
 
@@ -50,7 +50,7 @@ public class UtilityNodeTests : BaseNodeTests<UtilityNode<TestInput>>
     );
 
     var utilityNode = new UtilityNode<TestInput>(new[] { node1, node2, node3 });
-    var result = utilityNode.Tick(new());
+    utilityNode.Tick(new());
 
     Assert.Multiple(() => {
         Assert.That(node1Executed, Is.False);
@@ -121,7 +121,7 @@ public class UtilityNodeTests : BaseNodeTests<UtilityNode<TestInput>>
     );
 
     var utilityNode = new UtilityNode<TestInput>([node1, node2, node3,]);
-    var result = utilityNode.Tick(new());
+    utilityNode.Tick(new());
 
     Assert.Multiple(() => {
         Assert.That(node1Executed, Is.False);
@@ -172,23 +172,23 @@ public class UtilityNodeTests : BaseNodeTests<UtilityNode<TestInput>>
   }
 
   [Test]
-  public void Tick_EmptyNode_ReturnsSuccessByDefault()
+  public void Tick_EmptyNode_ReturnsFailureByDefault()
   {
     var utilityNode = new UtilityNode<TestInput>([]);
-    var result = utilityNode.Tick(new());
-    Assert.That(result, Is.EqualTo(NodeStatus.Success));
-  }
-
-  [Test]
-  public void Tick_EmptyNode_ReturnsFailureWhenRuleSet()
-  {
-    var utilityNode = new UtilityNode<TestInput>([], UtilityRules.IfEmptyFail);
     var result = utilityNode.Tick(new());
     Assert.That(result, Is.EqualTo(NodeStatus.Failure));
   }
 
   [Test]
-  public void Tick_NoNodePassesThreshold_ReturnsSuccessByDefault()
+  public void Tick_EmptyNode_ReturnsSuccessWhenRuleSet()
+  {
+    var utilityNode = new UtilityNode<TestInput>([], UtilityRules.InterceptFlowsFailureIfEmpty);
+    var result = utilityNode.Tick(new());
+    Assert.That(result, Is.EqualTo(NodeStatus.Success));
+  }
+
+  [Test]
+  public void Tick_NoNodePassesThreshold_ReturnsFailureByDefault()
   {
     var node1 = new LambdaEvaluatableNode<TestInput>(_ => NodeStatus.Success, _ => 0.5f);
     var node2 = new LambdaEvaluatableNode<TestInput>(_ => NodeStatus.Success, _ => 0.8f);
@@ -196,30 +196,30 @@ public class UtilityNodeTests : BaseNodeTests<UtilityNode<TestInput>>
     var utilityNode = new UtilityNode<TestInput>([node1, node2,], minEvaluationThreshold: 1.0f);
     var result = utilityNode.Tick(new());
 
-    Assert.That(result, Is.EqualTo(NodeStatus.Success));
+    Assert.That(result, Is.EqualTo(NodeStatus.Failure));
   }
 
   [Test]
-  public void Tick_NoNodePassesThreshold_ReturnsFailureWhenRuleSet()
+  public void Tick_NoNodePassesThreshold_ReturnsSuccessWhenRuleSet()
   {
     var node1 = new LambdaEvaluatableNode<TestInput>(_ => NodeStatus.Success, _ => 0.5f);
     var node2 = new LambdaEvaluatableNode<TestInput>(_ => NodeStatus.Success, _ => 0.8f);
 
     var utilityNode = new UtilityNode<TestInput>(
       [node1, node2,],
-      UtilityRules.IfNoActionSelectedFail,
+      UtilityRules.InterceptFlowsFailureIfNoActionPassesThreshold,
       minEvaluationThreshold: 1.0f
     );
     var result = utilityNode.Tick(new());
 
-    Assert.That(result, Is.EqualTo(NodeStatus.Failure));
+    Assert.That(result, Is.EqualTo(NodeStatus.Success));
   }
 
   [TestCase(NodeStatus.Success, NodeStatus.Success)]
-  [TestCase(NodeStatus.Failure, NodeStatus.Success)]
+  [TestCase(NodeStatus.Failure, NodeStatus.Failure)]
   [TestCase(NodeStatus.Running, NodeStatus.Running)]
   [TestCase(NodeStatus.Error, NodeStatus.Error)]
-  public void Tick_WithoutReturnRawStatus_ReturnsCorrectStatus(NodeStatus childStatus, NodeStatus expectedStatus)
+  public void Tick_WithDefaultRules_ReturnsCorrectStatus(NodeStatus childStatus, NodeStatus expectedStatus)
   {
     var node = new LambdaEvaluatableNode<TestInput>(_ => childStatus, _ => 1.0f);
     var utilityNode = new UtilityNode<TestInput>([node,]);
@@ -229,13 +229,13 @@ public class UtilityNodeTests : BaseNodeTests<UtilityNode<TestInput>>
   }
 
   [TestCase(NodeStatus.Success, NodeStatus.Success)]
-  [TestCase(NodeStatus.Failure, NodeStatus.Failure)]
+  [TestCase(NodeStatus.Failure, NodeStatus.Success)]
   [TestCase(NodeStatus.Running, NodeStatus.Running)]
   [TestCase(NodeStatus.Error, NodeStatus.Error)]
-  public void Tick_WithReturnRawStatus_ReturnsRawChildStatus(NodeStatus childStatus, NodeStatus expectedStatus)
+  public void Tick_WithInterceptChildsFailure_ReturnsCorrectStatus(NodeStatus childStatus, NodeStatus expectedStatus)
   {
     var node = new LambdaEvaluatableNode<TestInput>(_ => childStatus, _ => 1.0f);
-    var utilityNode = new UtilityNode<TestInput>([node,], UtilityRules.ReturnRawStatus);
+    var utilityNode = new UtilityNode<TestInput>([node,], UtilityRules.InterceptChildsFailure);
     var status = utilityNode.Tick(new());
     Assert.That(status, Is.EqualTo(expectedStatus));
   }

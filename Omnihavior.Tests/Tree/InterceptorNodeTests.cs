@@ -19,7 +19,7 @@ public class InterceptorNodeTests : BaseNodeTests<InterceptorNode<TestInput>>
   }
 
   protected override InterceptorNode<TestInput> CreateNodeForResetTests(out int? childrenNumber,
-    params IReadOnlyList<IBehaviorNode<TestInput>> children)
+    params IBehaviorNode<TestInput>[] children)
   {
     childrenNumber = 1;
     return new(children[0], InterceptionRules.OnSuccess);
@@ -57,17 +57,17 @@ public class InterceptorNodeTests : BaseNodeTests<InterceptorNode<TestInput>>
   }
 
   [Test]
-  [TestCase(NodeStatus.Success, InterceptionRules.OnSuccess | InterceptionRules.Negative, NodeStatus.Failure)]
-  [TestCase(NodeStatus.Failure, InterceptionRules.OnFailure | InterceptionRules.Negative, NodeStatus.Failure)]
-  [TestCase(NodeStatus.Running, InterceptionRules.OnRunning | InterceptionRules.Negative, NodeStatus.Failure)]
-  [TestCase(NodeStatus.Error, InterceptionRules.OnError | InterceptionRules.Negative, NodeStatus.Failure)]
+  [TestCase(NodeStatus.Success, InterceptionRules.OnSuccess, NodeStatus.Failure)]
+  [TestCase(NodeStatus.Failure, InterceptionRules.OnFailure, NodeStatus.Failure)]
+  [TestCase(NodeStatus.Running, InterceptionRules.OnRunning, NodeStatus.Failure)]
+  [TestCase(NodeStatus.Error, InterceptionRules.OnError, NodeStatus.Failure)]
   [SuppressMessage("Structure", "NUnit1003:The TestCaseAttribute provided too few arguments")]
-  public void Tick_NegativeRuleMatchesChildStatus_ReturnsFailure(NodeStatus childStatus, InterceptionRules rule,
+  public void Tick_WithFailureNewNode_ReturnsFailure(NodeStatus childStatus, InterceptionRules rule,
     NodeStatus expectedStatus)
   {
     _childStatus = childStatus;
     var child = CreateMockChild();
-    var node = new InterceptorNode<TestInput>(child, rule);
+    var node = new InterceptorNode<TestInput>(child, rule, NodeStatus.Failure);
 
     var result = node.Tick(new());
 
@@ -83,7 +83,7 @@ public class InterceptorNodeTests : BaseNodeTests<InterceptorNode<TestInput>>
   [TestCase(NodeStatus.Failure, InterceptionRules.OnSuccess)]
   [TestCase(NodeStatus.Running, InterceptionRules.OnSuccess)]
   [TestCase(NodeStatus.Error, InterceptionRules.OnSuccess)]
-  [TestCase(NodeStatus.Success, InterceptionRules.OnFailure | InterceptionRules.Negative)]
+  [TestCase(NodeStatus.Success, InterceptionRules.OnFailure)]
   [SuppressMessage("Structure", "NUnit1003:The TestCaseAttribute provided too few arguments")]
   public void Tick_RuleDoesNotMatchChildStatus_ReturnsChildStatus(NodeStatus childStatus, InterceptionRules rule)
   {
@@ -101,13 +101,13 @@ public class InterceptorNodeTests : BaseNodeTests<InterceptorNode<TestInput>>
   }
 
   [Test]
-  [TestCase(InterceptionRules.Placeholder, NodeStatus.Success)]
-  [TestCase(InterceptionRules.Placeholder | InterceptionRules.Negative, NodeStatus.Failure)]
+  [TestCase(InterceptionRules.SkipChildTick, NodeStatus.Success)]
+  [TestCase(InterceptionRules.SkipChildTick, NodeStatus.Failure)]
   [SuppressMessage("Structure", "NUnit1003:The TestCaseAttribute provided too few arguments")]
   public void Tick_PlaceholderRule_ReturnsStatusWithoutTickingChild(InterceptionRules rule, NodeStatus expectedStatus)
   {
     var child = CreateMockChild();
-    var node = new InterceptorNode<TestInput>(child, rule);
+    var node = new InterceptorNode<TestInput>(child, rule, expectedStatus);
 
     var result = node.Tick(new());
 

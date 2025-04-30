@@ -8,7 +8,7 @@ namespace Omnihavior.Tests.Tree;
 public class ParallelNodeTests : BaseNodeTests<ParallelNode<TestInput>>
 {
   protected override ParallelNode<TestInput> CreateNodeForResetTests(out int? childrenNumber,
-    params IReadOnlyList<IBehaviorNode<TestInput>> children)
+    params IBehaviorNode<TestInput>[] children)
   {
     childrenNumber = null;
     return new(children, 0);
@@ -19,7 +19,7 @@ public class ParallelNodeTests : BaseNodeTests<ParallelNode<TestInput>>
   {
     var child1 = new LambdaNode<TestInput>(_ => NodeStatus.Success);
     var child2 = new LambdaNode<TestInput>(_ => NodeStatus.Success);
-    var parallelNode = new ParallelNode<TestInput>(child1, child2);
+    var parallelNode = new ParallelNode<TestInput>([child1, child2,], 0);
 
     var result = parallelNode.Tick(new());
 
@@ -107,7 +107,7 @@ public class ParallelNodeTests : BaseNodeTests<ParallelNode<TestInput>>
   {
     var child1 = new LambdaNode<TestInput>(_ => NodeStatus.Success);
     var child2 = new LambdaNode<TestInput>(_ => NodeStatus.Failure);
-    var parallelNode = new ParallelNode<TestInput>(child1, child2);
+    var parallelNode = new ParallelNode<TestInput>([child1, child2,], 0);
 
     var result = parallelNode.Tick(new());
 

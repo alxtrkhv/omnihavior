@@ -8,10 +8,10 @@ namespace Omnihavior.Tests.Tree;
 public class ThrottleNodeTests : BaseNodeTests<ThrottleNode<TestInput>>
 {
   protected override ThrottleNode<TestInput> CreateNodeForResetTests(out int? childrenNumber,
-    params IReadOnlyList<IBehaviorNode<TestInput>> children)
+    params IBehaviorNode<TestInput>[] children)
   {
     childrenNumber = 1;
-    return new(children[0], 1, 0);
+    return new(children[0], 1);
   }
 
   [Test]
@@ -22,7 +22,7 @@ public class ThrottleNodeTests : BaseNodeTests<ThrottleNode<TestInput>>
   public void Tick_WithoutOffset_TicksChildCorrectNumberOfTimes(int onceIn, int offset, int runs, int expectedTicks)
   {
     var child = Substitute.For<IBehaviorNode<TestInput>>();
-    var node = new ThrottleNode<TestInput>(child, onceIn, offset);
+    var node = new ThrottleNode<TestInput>(child, onceIn, rules: ThrottleRules.None, offset: offset);
     var input = new TestInput();
 
     for (var i = 0; i < runs; i++) {
@@ -40,7 +40,7 @@ public class ThrottleNodeTests : BaseNodeTests<ThrottleNode<TestInput>>
   public void Tick_WithOffset_TicksChildCorrectNumberOfTimes(int onceIn, int offset, int runs, int expectedTicks)
   {
     var child = Substitute.For<IBehaviorNode<TestInput>>();
-    var node = new ThrottleNode<TestInput>(child, onceIn, offset);
+    var node = new ThrottleNode<TestInput>(child, onceIn, rules: ThrottleRules.None, offset: offset);
     var input = new TestInput();
 
     for (var i = 0; i < runs; i++) {
@@ -54,7 +54,7 @@ public class ThrottleNodeTests : BaseNodeTests<ThrottleNode<TestInput>>
   public void Tick_WhenThrottled_ReturnsSuccess()
   {
     var child = Substitute.For<IBehaviorNode<TestInput>>();
-    var node = new ThrottleNode<TestInput>(child, 3, 0);
+    var node = new ThrottleNode<TestInput>(child, 3, rules: 0);
     var input = new TestInput();
 
     child.Tick(Arg.Any<TestInput>()).Returns(NodeStatus.Failure);
@@ -77,7 +77,7 @@ public class ThrottleNodeTests : BaseNodeTests<ThrottleNode<TestInput>>
   public void Tick_WhenChildTicked_ReturnsChildStatus()
   {
     var child = Substitute.For<IBehaviorNode<TestInput>>();
-    var node = new ThrottleNode<TestInput>(child, 1, 0);
+    var node = new ThrottleNode<TestInput>(child, 1, rules: 0);
     var input = new TestInput();
 
     child.Tick(Arg.Any<TestInput>()).Returns(NodeStatus.Failure, NodeStatus.Success, NodeStatus.Running);
@@ -111,7 +111,8 @@ public class ThrottleNodeTests : BaseNodeTests<ThrottleNode<TestInput>>
   public void Constructor_OffsetNegative_DefaultsToZero()
   {
     var child = Substitute.For<IBehaviorNode<TestInput>>();
-    var node = new ThrottleNode<TestInput>(child, 3, -1);
+
+    var node = new ThrottleNode<TestInput>(child, 3, rules: ThrottleRules.None, offset: -1);
     var input = new TestInput();
 
     node.Tick(input);

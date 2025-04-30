@@ -9,14 +9,14 @@ namespace Omnihavior.Tests.Tree;
 public class ConditionalNodeTests : BaseNodeTests<ConditionalNode<TestInput>>
 {
   protected override ConditionalNode<TestInput> CreateNodeForResetTests(out int? childrenNumber,
-    params IReadOnlyList<IBehaviorNode<TestInput>> children)
+    params IBehaviorNode<TestInput>[] children)
   {
     childrenNumber = 3;
-    return new(children[0], children[1], children[2]);
+    return new(children[0], children[1], children[2], 0);
   }
 
   [Test]
-  public void Tick_WhenNotRunningOrErrorWithoutRawStatus_ReturnsSuccess(
+  public void Tick_WhenNotRunningOrErrorWithAllInterceptingRules_ReturnsSuccess(
     [Values(NodeStatus.Success, NodeStatus.Failure)]
     NodeStatus conditionStatus,
     [Values(NodeStatus.Success, NodeStatus.Failure)]
@@ -27,7 +27,12 @@ public class ConditionalNodeTests : BaseNodeTests<ConditionalNode<TestInput>>
     var condition = new LambdaNode<TestInput>(_ => conditionStatus);
     var positiveBody = new LambdaNode<TestInput>(_ => positiveStatus);
     var negativeBody = negativeStatus is null ? null : new LambdaNode<TestInput>(_ => negativeStatus.Value);
-    var conditionalNode = new ConditionalNode<TestInput>(condition, positiveBody, negativeBody);
+    var conditionalNode = new ConditionalNode<TestInput>(
+      condition,
+      positiveBody,
+      negativeBody,
+      ConditionRules.InterceptChildsFailure | ConditionRules.InterceptFlowsFailure
+    );
 
     var result = conditionalNode.Tick(new());
 
@@ -47,7 +52,7 @@ public class ConditionalNodeTests : BaseNodeTests<ConditionalNode<TestInput>>
     var condition = new LambdaNode<TestInput>(_ => conditionStatus);
     var positiveBody = new LambdaNode<TestInput>(_ => positiveStatus);
     var negativeBody = negativeStatus is null ? null : new LambdaNode<TestInput>(_ => negativeStatus.Value);
-    var conditionalNode = new ConditionalNode<TestInput>(condition, positiveBody, negativeBody);
+    var conditionalNode = new ConditionalNode<TestInput>(condition, positiveBody, negativeBody, ConditionRules.None);
 
     var result = conditionalNode.Tick(new());
 
@@ -84,7 +89,7 @@ public class ConditionalNodeTests : BaseNodeTests<ConditionalNode<TestInput>>
       )
       : null;
 
-    var conditionalNode = new ConditionalNode<TestInput>(condition, positiveBody, negativeBody);
+    var conditionalNode = new ConditionalNode<TestInput>(condition, positiveBody, negativeBody, ConditionRules.None);
 
     conditionalNode.Tick(new());
 
@@ -116,7 +121,7 @@ public class ConditionalNodeTests : BaseNodeTests<ConditionalNode<TestInput>>
       condition,
       positiveBody,
       negativeBody,
-      ConditionRules.ReturnRawStatus
+      ConditionRules.None
     );
 
     var result = conditionalNode.Tick(new());
@@ -153,7 +158,7 @@ public class ConditionalNodeTests : BaseNodeTests<ConditionalNode<TestInput>>
     var positiveBody = new LambdaNode<TestInput>(_ => positiveStatus);
     var negativeBody = negativeStatus is null ? null : new LambdaNode<TestInput>(_ => negativeStatus.Value);
 
-    var rules = checkConditionOnlyOnce ? ConditionRules.CheckConditionOnlyOnce : ConditionRules.None;
+    var rules = checkConditionOnlyOnce ? ConditionRules.CacheCondition : ConditionRules.None;
     var conditionalNode = new ConditionalNode<TestInput>(condition, positiveBody, negativeBody, rules);
 
     for (var i = 0; i < tickCount; i++) {

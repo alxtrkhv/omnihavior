@@ -19,11 +19,11 @@ public class ResetterNodeTests : BaseNodeTests<ResetterNode<TestInput>>
   }
 
   protected override ResetterNode<TestInput> CreateNodeForResetTests(out int? childrenNumber,
-    params IReadOnlyList<IBehaviorNode<TestInput>> children)
+    params IBehaviorNode<TestInput>[] children)
   {
     childrenNumber = 1;
     _mockChild = children[0];
-    return new(_mockChild, ResetRules.Always);
+    return new(_mockChild, ResetRules.Never);
   }
 
   private ResetterNode<TestInput> CreateSpecificNode(NodeStatus childStatus, ResetRules rules)
@@ -40,12 +40,16 @@ public class ResetterNodeTests : BaseNodeTests<ResetterNode<TestInput>>
   [SuppressMessage("Structure", "NUnit1003:The TestCaseAttribute provided too few arguments")]
   public void Tick_ReturnsChildStatus(NodeStatus expectedStatus)
   {
-    var node = CreateSpecificNode(expectedStatus, ResetRules.Always);
+    var node = CreateSpecificNode(expectedStatus, ResetRules.Never);
     var result = node.Tick(new());
     Assert.That(result, Is.EqualTo(expectedStatus));
   }
 
   [Test]
+  [TestCase(NodeStatus.Success, ResetRules.Never, false)]
+  [TestCase(NodeStatus.Failure, ResetRules.Never, false)]
+  [TestCase(NodeStatus.Running, ResetRules.Never, false)]
+  [TestCase(NodeStatus.Error, ResetRules.Never, false)]
   [TestCase(NodeStatus.Success, ResetRules.Always, true)]
   [TestCase(NodeStatus.Failure, ResetRules.Always, true)]
   [TestCase(NodeStatus.Running, ResetRules.Always, true)]

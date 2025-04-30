@@ -1,21 +1,40 @@
-using Omnihavior.Utility;
+using System;
 using System.Collections.Generic;
+using Omnihavior.Utility;
 
 // ReSharper disable once CheckNamespace
 namespace Omnihavior.Core;
 
-public partial struct BehaviourBuilder<TInputData>
+public partial class BehaviourBuilder<TInputData>
 {
-  public static IBehaviorNode<TInputData> UtilityAi(IReadOnlyList<IEvaluatable<TInputData>> evaluations,
-    IReadOnlyList<IBehaviorNode<TInputData>> nodes, UtilityRules rules = UtilityRules.None,
-    float minEvaluationThreshold = float.MinValue, float lastNodeBonus = 0f)
+  public UtilityNode<TInputData> Utility(IReadOnlyList<IEvaluatable<TInputData>> evaluations,
+    IReadOnlyList<IBehaviorNode<TInputData>> nodes, UtilityRules? rules = null,
+    float? minEvaluationThreshold = null, float? lastNodeBonus = null)
   {
-    return new UtilityNode<TInputData>(evaluations, nodes, rules, minEvaluationThreshold, lastNodeBonus);
+    return new(
+      evaluations,
+      nodes,
+      rules ?? Settings.DefaultUtilityRules,
+      minEvaluationThreshold ?? Settings.DefaultUtilityMinEvaluationThreshold,
+      lastNodeBonus ?? Settings.DefaultUtilityLastNodeBonus
+    );
   }
 
-  public static IBehaviorNode<TInputData> UtilityAi(IReadOnlyList<IEvaluatableNode<TInputData>> nodes,
-    UtilityRules rules = UtilityRules.None, float minEvaluationThreshold = float.MinValue, float lastNodeBonus = 0f)
+  public UtilityNode<TInputData> Utility(IReadOnlyList<IEvaluatableNode<TInputData>> nodes,
+    UtilityRules? rules = null,
+    float? minEvaluationThreshold = null, float? lastNodeBonus = null)
   {
-    return new UtilityNode<TInputData>(nodes, rules, minEvaluationThreshold, lastNodeBonus);
+    return new(
+      nodes,
+      rules ?? Settings.DefaultUtilityRules,
+      minEvaluationThreshold ?? Settings.DefaultUtilityMinEvaluationThreshold,
+      lastNodeBonus ?? Settings.DefaultUtilityLastNodeBonus
+    );
+  }
+
+  public LambdaEvaluatableNode<TInputData> LambdaEvaluatableNode(Func<TInputData, NodeStatus> tick,
+    Func<TInputData, float> evaluate, Action<TInputData>? reset = null)
+  {
+    return new(tick, evaluate, reset);
   }
 }

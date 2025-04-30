@@ -8,7 +8,7 @@ namespace Omnihavior.Tests.Tree;
 public class SequenceNodeTests : BaseNodeTests<SequenceNode<TestInput>>
 {
   protected override SequenceNode<TestInput> CreateNodeForResetTests(out int? childrenNumber,
-    params IReadOnlyList<IBehaviorNode<TestInput>> children)
+    params IBehaviorNode<TestInput>[] children)
   {
     childrenNumber = null;
     return new(children);

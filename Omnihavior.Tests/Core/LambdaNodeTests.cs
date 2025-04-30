@@ -29,7 +29,7 @@ public class LambdaNodeTests : BaseNodeTests<LambdaNode<TestInput>>
   }
 
   protected override LambdaNode<TestInput> CreateNodeForResetTests(out int? childrenNumber,
-    params IReadOnlyList<IBehaviorNode<TestInput>> children)
+    params IBehaviorNode<TestInput>[] children)
   {
     childrenNumber = 1;
     return new(input => children[0].Tick(input), input => children[0].Reset(input));
@@ -48,7 +48,6 @@ public class LambdaNodeTests : BaseNodeTests<LambdaNode<TestInput>>
   [TestCase(NodeStatus.Failure)]
   [TestCase(NodeStatus.Running)]
   [TestCase(NodeStatus.Error)]
-  [SuppressMessage("Structure", "NUnit1003:The TestCaseAttribute provided too few arguments")]
   public void Tick_ReturnsLambdaResult(NodeStatus expectedStatus)
   {
     _lambdaResultStatus = expectedStatus;

@@ -8,7 +8,7 @@ namespace Omnihavior.Tests.Tree;
 public class InverterNodeTests : BaseNodeTests<InverterNode<TestInput>>
 {
   protected override InverterNode<TestInput> CreateNodeForResetTests(out int? childrenNumber,
-    params IReadOnlyList<IBehaviorNode<TestInput>> children)
+    params IBehaviorNode<TestInput>[] children)
   {
     childrenNumber = 1;
     return new(children[0]);

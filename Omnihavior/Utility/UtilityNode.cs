@@ -4,16 +4,43 @@ using Omnihavior.Core;
 
 namespace Omnihavior.Utility;
 
+/// <summary>
+/// Defines rules for customizing the behavior of a <see cref="UtilityNode{TInputData}"/>.
+/// </summary>
 [Flags]
 public enum UtilityRules : short
 {
+  /// <summary>
+  /// Default behavior.
+  /// </summary>
   None = 0,
+
+  /// <summary>
+  /// If set, and multiple nodes have the same highest evaluation score, the one that runs last (if any) is selected. Otherwise, the first one encountered is selected.
+  /// </summary>
   IfEqualSelectLast = 1 << 0,
-  IfEmptyFail = 1 << 1,
-  IfNoActionSelectedFail = 1 << 2,
-  ReturnRawStatus = 1 << 3,
+
+  /// <summary>
+  /// If set, the node returns Success if it has no children. Otherwise, it returns Failure.
+  /// </summary>
+  InterceptFlowsFailureIfEmpty = 1 << 1,
+
+  /// <summary>
+  /// If set, the node returns Success if no child's evaluation score meets the minimum threshold. Otherwise, it returns Failure.
+  /// </summary>
+  InterceptFlowsFailureIfNoActionPassesThreshold = 1 << 2,
+
+  /// <summary>
+  /// If set, the node returns Success even if the selected child node returns Failure. Otherwise, it returns the child's Failure status.
+  /// </summary>
+  InterceptChildsFailure = 1 << 3,
 }
 
+/// <summary>
+/// A composite node that selects and ticks a single child based on utility scores provided by evaluators.
+/// Each tick, it evaluates all children, selects the one with the highest score (considering rules and thresholds), and ticks it.
+/// </summary>
+/// <typeparam name="TInputData">The type of input data the node operates on.</typeparam>
 public class UtilityNode<TInputData> : IBehaviorNode<TInputData>
 {
   private readonly IReadOnlyList<IEvaluatable<TInputData>> _evaluations;
@@ -26,6 +53,13 @@ public class UtilityNode<TInputData> : IBehaviorNode<TInputData>
   private int _lastNodeIndex = -1;
   private IBehaviorNode<TInputData>? _nodeOverride;
 
+  /// <summary>
+  /// Initializes a new instance of the <see cref="UtilityNode{TInputData}"/> class where nodes are also evaluators.
+  /// </summary>
+  /// <param name="nodes">The list of child nodes, which must implement <see cref="IEvaluatableNode{TInputData}"/>.</param>
+  /// <param name="rules">The rules governing the utility node's behavior.</param>
+  /// <param name="minEvaluationThreshold">The minimum evaluation score a node must have to be considered for execution.</param>
+  /// <param name="lastNodeBonus">A bonus score added to the node that ran last tick, potentially increasing its chance of running again.</param>
   public UtilityNode(IReadOnlyList<IEvaluatableNode<TInputData>> nodes, UtilityRules rules = UtilityRules.None,
     float minEvaluationThreshold = float.MinValue, float lastNodeBonus = 0f) : this(
     nodes,
@@ -35,6 +69,14 @@ public class UtilityNode<TInputData> : IBehaviorNode<TInputData>
     lastNodeBonus
   ) { }
 
+  /// <summary>
+  /// Initializes a new instance of the <see cref="UtilityNode{TInputData}"/> class with separate evaluators and nodes.
+  /// </summary>
+  /// <param name="evaluations">The list of evaluators corresponding to each node.</param>
+  /// <param name="nodes">The list of child behavior nodes.</param>
+  /// <param name="rules">The rules governing the utility node's behavior.</param>
+  /// <param name="minEvaluationThreshold">The minimum evaluation score a node must have to be considered for execution.</param>
+  /// <param name="lastNodeBonus">A bonus score added to the node that ran last tick, potentially increasing its chance of running again.</param>
   public UtilityNode(IReadOnlyList<IEvaluatable<TInputData>> evaluations,
     IReadOnlyList<IBehaviorNode<TInputData>> nodes, UtilityRules rules = UtilityRules.None,
     float minEvaluationThreshold = float.MinValue, float lastNodeBonus = 0f)
@@ -46,6 +88,7 @@ public class UtilityNode<TInputData> : IBehaviorNode<TInputData>
     _lastNodeBonus = lastNodeBonus;
   }
 
+  /// <inheritdoc/>
   public NodeStatus Tick(TInputData input)
   {
     if (_nodeOverride != null) {
@@ -53,8 +96,8 @@ public class UtilityNode<TInputData> : IBehaviorNode<TInputData>
     }
 
     if (_nodes.Count == 0) {
-      var shouldFailIfEmpty = _rules.HasFlag(UtilityRules.IfEmptyFail);
-      return shouldFailIfEmpty ? NodeStatus.Failure : NodeStatus.Success;
+      var shouldSucceedIfEmpty = _rules.HasFlag(UtilityRules.InterceptFlowsFailureIfEmpty);
+      return shouldSucceedIfEmpty ? NodeStatus.Success : NodeStatus.Failure;
     }
 
     var bestEvaluation = float.MinValue;
@@ -87,14 +130,16 @@ public class UtilityNode<TInputData> : IBehaviorNode<TInputData>
     if (bestEvaluation < _minEvaluationThreshold) {
       _lastNodeIndex = -1;
 
-      var shouldFailIfNoNodeSelected = _rules.HasFlag(UtilityRules.IfNoActionSelectedFail);
-      return shouldFailIfNoNodeSelected ? NodeStatus.Failure : NodeStatus.Success;
+      var shouldSucceedIfNoActionPassesThreshold =
+        _rules.HasFlag(UtilityRules.InterceptFlowsFailureIfNoActionPassesThreshold);
+      return shouldSucceedIfNoActionPassesThreshold ? NodeStatus.Success : NodeStatus.Failure;
     }
 
     var status = TickNode(bestNode, bestNodeIndex, input);
     return status;
   }
 
+  /// <inheritdoc/>
   public void Reset(TInputData input)
   {
     foreach (var child in _nodes) {
@@ -115,7 +160,7 @@ public class UtilityNode<TInputData> : IBehaviorNode<TInputData>
     switch (status) {
       case NodeStatus.Error:
       case NodeStatus.Running:
-      case NodeStatus.Failure when _rules.HasFlag(UtilityRules.ReturnRawStatus):
+      case NodeStatus.Failure when !_rules.HasFlag(UtilityRules.InterceptChildsFailure):
         return status;
 
       default:

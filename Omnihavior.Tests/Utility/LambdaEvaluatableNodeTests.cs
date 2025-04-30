@@ -15,7 +15,7 @@ public class LambdaEvaluatableNodeTests : BaseNodeTests<LambdaEvaluatableNode<Te
   private LambdaEvaluatableNode<TestInput> _testNode;
 
   protected override LambdaEvaluatableNode<TestInput> CreateNodeForResetTests(out int? childrenNumber,
-    params IReadOnlyList<IBehaviorNode<TestInput>> children)
+    params IBehaviorNode<TestInput>[] children)
   {
     childrenNumber = 1;
 
