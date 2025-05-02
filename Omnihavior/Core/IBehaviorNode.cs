@@ -37,11 +37,11 @@ public interface IBehaviorNode<TInputData>
   /// </summary>
   /// <param name="input">The input data for the node's execution.</param>
   /// <returns>The execution status of the node (<see cref="NodeStatus"/>).</returns>
-  public NodeStatus Tick(TInputData input);
+  public NodeStatus Tick(TInputData input) => NodeStatus.Success;
 
   /// <summary>
   /// Resets the internal state of the node.
   /// </summary>
   /// <param name="input">The input data, potentially used for state reset logic.</param>
-  public void Reset(TInputData input);
+  public void Reset(TInputData input) { }
 }

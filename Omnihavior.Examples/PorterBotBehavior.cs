@@ -21,7 +21,7 @@ public class PorterBotState
   public void Reset()
   {
     HasBoxInHands = false;
-    Location = PorterBotLocation.Dock;
+    Location = PorterBotLocation.ChargingBay;
   }
 }
 

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Omnihavior.Tree;
 
 // ReSharper disable once CheckNamespace

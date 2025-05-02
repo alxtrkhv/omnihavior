@@ -8,7 +8,7 @@ public static class Scenarios
       BoxesOnShip = 5,
       BoxesInDock = 0,
       HasBoxInHands = false,
-      Location = PorterBotLocation.Dock,
+      Location = PorterBotLocation.ChargingBay,
     };
     var behavior = new PorterBotBehavior();
 

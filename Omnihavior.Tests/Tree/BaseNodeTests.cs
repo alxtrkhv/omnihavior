@@ -1,7 +1,6 @@
 using NSubstitute;
 using Omnihavior.Core;
 using Omnihavior.Tests.Mocks;
-using Omnihavior.Tree;
 
 namespace Omnihavior.Tests.Tree;
 
