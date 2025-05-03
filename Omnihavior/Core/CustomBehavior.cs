@@ -22,5 +22,8 @@ public abstract partial class CustomBehavior<TInputData> : IBehaviorNode<TInputD
     return _root.Tick(input);
   }
 
-  public virtual void Reset(TInputData input) { }
+  public virtual void Reset(TInputData input)
+  {
+    _root.Reset(input);
+  }
 }
