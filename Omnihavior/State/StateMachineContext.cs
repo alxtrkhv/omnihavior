@@ -32,13 +32,14 @@ public readonly struct StateMachineContext<TInputData>
   {
     var state = _stateMap[key ?? StateMachineNode<TInputData>.NullStateKey];
     var minLength = Math.Min(_state.Count, state.Length);
+    var defaultState = key is not null ? -1 : int.MinValue;
 
     for (var i = 0; i < minLength; i++) {
       _state[i] = state[i];
     }
 
     for (var i = minLength; i < _state.Count; i++) {
-      _state[i] = -1;
+      _state[i] = defaultState;
     }
   }
 
@@ -57,9 +58,6 @@ public readonly struct StateMachineContext<TInputData>
   public StateMachineContext<TInputData> GetChildContext(StateMachineNode<TInputData> parent, int index)
   {
     var newLayer = Layer + 1;
-    while (_state.Count <= newLayer) {
-      _state.Add(-1);
-    }
 
     return new(Root, parent, newLayer, index, _stateMap, _state);
   }
@@ -67,5 +65,12 @@ public readonly struct StateMachineContext<TInputData>
   public void RegisterStateInMap(StateMachineNode<TInputData> parent, IStateNode<TInputData> child, int index)
   {
     _stateMap[child.Key] = _stateMap[parent.Key].Concat([index,]).ToArray();
+  }
+
+  public void RegisterChildLayer()
+  {
+    while (_state.Count <= Layer + 1) {
+      _state.Add(-1);
+    }
   }
 }

@@ -10,15 +10,20 @@ public class LambdaStateNode<TInputData> : IStateNode<TInputData>
   private readonly Action<TInputData, StateMachineContext<TInputData>>? _enter;
   private readonly Action<TInputData, StateMachineContext<TInputData>>? _exit;
 
-  public string Key { get; }
+  public string Key { get; set; }
   public StateMachineContext<TInputData> Context { get; set; }
 
-  public LambdaStateNode(string key, Func<TInputData, StateMachineContext<TInputData>, NodeStatus>? tick = null,
+  public LambdaStateNode(Func<TInputData, StateMachineContext<TInputData>, NodeStatus>? tick = null,
+    Action<TInputData, StateMachineContext<TInputData>>? enter = null,
+    Action<TInputData, StateMachineContext<TInputData>>? exit = null,
+    Action<TInputData, StateMachineContext<TInputData>>? reset = null) : this(null, tick, enter, exit, reset) { }
+
+  public LambdaStateNode(string? key = null, Func<TInputData, StateMachineContext<TInputData>, NodeStatus>? tick = null,
     Action<TInputData, StateMachineContext<TInputData>>? enter = null,
     Action<TInputData, StateMachineContext<TInputData>>? exit = null,
     Action<TInputData, StateMachineContext<TInputData>>? reset = null)
   {
-    Key = key;
+    Key = key ?? string.Empty;
     _tick = tick;
     _enter = enter;
     _exit = exit;

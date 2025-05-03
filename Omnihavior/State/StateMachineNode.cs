@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Omnihavior.Core;
 
@@ -27,7 +28,7 @@ public class StateMachineNode<TInputData> : IStateNode<TInputData>
   private int _defaultStateIndex;
   private bool _blockTransitions;
 
-  public string Key { get; }
+  public string Key { get; set;  }
 
   public IStateNode<TInputData> CurrentState { get; private set; }
 
@@ -50,7 +51,8 @@ public class StateMachineNode<TInputData> : IStateNode<TInputData>
   );
 
   public StateMachineNode(string? key = null, List<IStateNode<TInputData>>? states = null,
-    List<ITransition<TInputData>>? transitions = null, StateMachineRules rules = StateMachineRules.None)
+    List<ITransition<TInputData>>? transitions = null, StateMachineRules rules = StateMachineRules.None,
+    string? defaultState = null)
   {
     Key = string.IsNullOrWhiteSpace(key) ? string.Empty : key;
     _states = states ?? [];
@@ -215,6 +217,7 @@ public class StateMachineNode<TInputData> : IStateNode<TInputData>
       var child = _states[i];
       var parent = this;
 
+      Context.RegisterChildLayer();
       Context.RegisterStateInMap(parent, child, i);
       child.Context = _context.GetChildContext(parent, i);
     }
