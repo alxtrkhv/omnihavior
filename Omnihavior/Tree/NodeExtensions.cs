@@ -80,7 +80,7 @@ public static partial class NodeExtensions
     return Builder.Default<TInputData>().Limit(child, 1);
   }
 
-  public static ResetterNode<TInputData> Reset<TInputData>(this IBehaviorNode<TInputData> child,
+  public static ResetterNode<TInputData> WithReset<TInputData>(this IBehaviorNode<TInputData> child,
     ResetRules? rules = null)
   {
     return Builder.Default<TInputData>().Resetter(child, rules);
