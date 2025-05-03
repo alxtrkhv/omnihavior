@@ -38,7 +38,8 @@ public class LambdaNodeTests : BaseNodeTests<LambdaNode<TestInput>>
   public void Tick_ExecutesLambda()
   {
     var node = _testNode;
-    node.Tick(new());
+    var inputData = new TestInput();
+    node.Tick(inputData);
     Assert.That(_lambdaExecuted, Is.True);
   }
 
@@ -51,7 +52,8 @@ public class LambdaNodeTests : BaseNodeTests<LambdaNode<TestInput>>
   {
     _lambdaResultStatus = expectedStatus;
     var node = _testNode;
-    var result = node.Tick(new());
+    var testInput = new TestInput();
+    var result = node.Tick(testInput);
     Assert.That(result, Is.EqualTo(expectedStatus));
   }
 

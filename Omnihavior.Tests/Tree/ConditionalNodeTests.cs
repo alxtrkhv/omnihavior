@@ -33,7 +33,8 @@ public class ConditionalNodeTests : BaseNodeTests<ConditionalNode<TestInput>>
       ConditionRules.InterceptChildsFailure | ConditionRules.InterceptFlowsFailure
     );
 
-    var result = conditionalNode.Tick(new());
+    var testInput = new TestInput();
+    var result = conditionalNode.Tick(testInput);
 
     Assert.That(result, Is.EqualTo(NodeStatus.Success));
   }
@@ -53,7 +54,8 @@ public class ConditionalNodeTests : BaseNodeTests<ConditionalNode<TestInput>>
     var negativeBody = negativeStatus is null ? null : new LambdaNode<TestInput>(_ => negativeStatus.Value);
     var conditionalNode = new ConditionalNode<TestInput>(condition, positiveBody, negativeBody, ConditionRules.None);
 
-    var result = conditionalNode.Tick(new());
+    var testInput = new TestInput();
+    var result = conditionalNode.Tick(testInput);
 
     Assert.That(result, Is.EqualTo(expectedStatus));
   }
@@ -90,7 +92,8 @@ public class ConditionalNodeTests : BaseNodeTests<ConditionalNode<TestInput>>
 
     var conditionalNode = new ConditionalNode<TestInput>(condition, positiveBody, negativeBody, ConditionRules.None);
 
-    conditionalNode.Tick(new());
+    var testInput = new TestInput();
+    conditionalNode.Tick(testInput);
 
     Assert.Multiple(() => {
         Assert.That(positiveNodeTicked, Is.EqualTo(positiveNodeExpectedToTick));
@@ -123,7 +126,8 @@ public class ConditionalNodeTests : BaseNodeTests<ConditionalNode<TestInput>>
       ConditionRules.None
     );
 
-    var result = conditionalNode.Tick(new());
+    var testInput = new TestInput();
+    var result = conditionalNode.Tick(testInput);
 
     Assert.That(result, Is.EqualTo(expectedStatus));
   }
@@ -161,7 +165,8 @@ public class ConditionalNodeTests : BaseNodeTests<ConditionalNode<TestInput>>
     var conditionalNode = new ConditionalNode<TestInput>(condition, positiveBody, negativeBody, rules);
 
     for (var i = 0; i < tickCount; i++) {
-      conditionalNode.Tick(new());
+      var testInput = new TestInput();
+      conditionalNode.Tick(testInput);
     }
 
     Assert.That(conditionTickCount, Is.EqualTo(expectedConditionTicks));

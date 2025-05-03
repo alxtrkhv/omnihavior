@@ -20,7 +20,8 @@ public class InverterNodeTests : BaseNodeTests<InverterNode<TestInput>>
     var child = new LambdaNode<TestInput>(_ => NodeStatus.Success);
     var invertedNode = new InverterNode<TestInput>(child);
 
-    var result = invertedNode.Tick(new());
+    var testInput = new TestInput();
+    var result = invertedNode.Tick(testInput);
 
     Assert.That(result, Is.EqualTo(NodeStatus.Failure));
   }
@@ -31,7 +32,8 @@ public class InverterNodeTests : BaseNodeTests<InverterNode<TestInput>>
     var child = new LambdaNode<TestInput>(_ => NodeStatus.Failure);
     var invertedNode = new InverterNode<TestInput>(child);
 
-    var result = invertedNode.Tick(new());
+    var testInput = new TestInput();
+    var result = invertedNode.Tick(testInput);
 
     Assert.That(result, Is.EqualTo(NodeStatus.Success));
   }
@@ -42,7 +44,8 @@ public class InverterNodeTests : BaseNodeTests<InverterNode<TestInput>>
     var child = new LambdaNode<TestInput>(_ => NodeStatus.Running);
     var invertedNode = new InverterNode<TestInput>(child);
 
-    var result = invertedNode.Tick(new());
+    var testInput = new TestInput();
+    var result = invertedNode.Tick(testInput);
 
     Assert.That(result, Is.EqualTo(NodeStatus.Running));
   }
@@ -53,7 +56,8 @@ public class InverterNodeTests : BaseNodeTests<InverterNode<TestInput>>
     var child = new LambdaNode<TestInput>(_ => NodeStatus.Error);
     var invertedNode = new InverterNode<TestInput>(child);
 
-    var result = invertedNode.Tick(new());
+    var testInput = new TestInput();
+    var result = invertedNode.Tick(testInput);
 
     Assert.That(result, Is.EqualTo(NodeStatus.Error));
   }

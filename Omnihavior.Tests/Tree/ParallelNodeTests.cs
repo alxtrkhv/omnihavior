@@ -21,7 +21,8 @@ public class ParallelNodeTests : BaseNodeTests<ParallelNode<TestInput>>
     var child2 = new LambdaNode<TestInput>(_ => NodeStatus.Success);
     var parallelNode = new ParallelNode<TestInput>([child1, child2,], 0);
 
-    var result = parallelNode.Tick(new());
+    var testInput = new TestInput();
+    var result = parallelNode.Tick(testInput);
 
     Assert.That(result, Is.EqualTo(NodeStatus.Success));
   }
@@ -34,7 +35,8 @@ public class ParallelNodeTests : BaseNodeTests<ParallelNode<TestInput>>
     var child3 = new LambdaNode<TestInput>(_ => NodeStatus.Success);
     var parallelNode = new ParallelNode<TestInput>([child1, child2, child3,], 1);
 
-    var result = parallelNode.Tick(new());
+    var testInput = new TestInput();
+    var result = parallelNode.Tick(testInput);
 
     Assert.That(result, Is.EqualTo(NodeStatus.Success));
   }
@@ -47,7 +49,8 @@ public class ParallelNodeTests : BaseNodeTests<ParallelNode<TestInput>>
     var child3 = new LambdaNode<TestInput>(_ => NodeStatus.Failure);
     var parallelNode = new ParallelNode<TestInput>([child1, child2, child3,], 1);
 
-    var result = parallelNode.Tick(new());
+    var testInput = new TestInput();
+    var result = parallelNode.Tick(testInput);
 
     Assert.That(result, Is.EqualTo(NodeStatus.Failure));
   }
@@ -60,7 +63,8 @@ public class ParallelNodeTests : BaseNodeTests<ParallelNode<TestInput>>
     var child3 = new LambdaNode<TestInput>(_ => NodeStatus.Failure);
     var parallelNode = new ParallelNode<TestInput>([child1, child2, child3,], 1);
 
-    var result = parallelNode.Tick(new());
+    var testInput = new TestInput();
+    var result = parallelNode.Tick(testInput);
 
     Assert.That(result, Is.EqualTo(NodeStatus.Running));
   }
@@ -74,7 +78,8 @@ public class ParallelNodeTests : BaseNodeTests<ParallelNode<TestInput>>
     var child4 = new LambdaNode<TestInput>(_ => NodeStatus.Failure);
     var parallelNode = new ParallelNode<TestInput>([child1, child2, child3, child4,], 1);
 
-    var result = parallelNode.Tick(new());
+    var testInput = new TestInput();
+    var result = parallelNode.Tick(testInput);
 
     Assert.That(result, Is.EqualTo(NodeStatus.Failure));
   }
@@ -87,7 +92,8 @@ public class ParallelNodeTests : BaseNodeTests<ParallelNode<TestInput>>
     var child3 = new LambdaNode<TestInput>(_ => NodeStatus.Success);
     var parallelNode = new ParallelNode<TestInput>(new[] { child1, child2, child3 }, 0);
 
-    var result = parallelNode.Tick(new());
+    var testInput = new TestInput();
+    var result = parallelNode.Tick(testInput);
 
     Assert.That(result, Is.EqualTo(NodeStatus.Error));
   }
@@ -97,7 +103,8 @@ public class ParallelNodeTests : BaseNodeTests<ParallelNode<TestInput>>
   {
     var parallelNode = new ParallelNode<TestInput>([], 0);
 
-    var result = parallelNode.Tick(new());
+    var testInput = new TestInput();
+    var result = parallelNode.Tick(testInput);
 
     Assert.That(result, Is.EqualTo(NodeStatus.Success));
   }
@@ -109,7 +116,8 @@ public class ParallelNodeTests : BaseNodeTests<ParallelNode<TestInput>>
     var child2 = new LambdaNode<TestInput>(_ => NodeStatus.Failure);
     var parallelNode = new ParallelNode<TestInput>([child1, child2,], 0);
 
-    var result = parallelNode.Tick(new());
+    var testInput = new TestInput();
+    var result = parallelNode.Tick(testInput);
 
     Assert.That(result, Is.EqualTo(NodeStatus.Failure));
   }
@@ -121,7 +129,8 @@ public class ParallelNodeTests : BaseNodeTests<ParallelNode<TestInput>>
     var child2 = new LambdaNode<TestInput>(_ => NodeStatus.Failure);
     var parallelNode = new ParallelNode<TestInput>([child1, child2,], 2);
 
-    var result = parallelNode.Tick(new());
+    var testInput = new TestInput();
+    var result = parallelNode.Tick(testInput);
 
     Assert.That(result, Is.EqualTo(NodeStatus.Success));
   }
@@ -133,7 +142,8 @@ public class ParallelNodeTests : BaseNodeTests<ParallelNode<TestInput>>
     var child2 = new LambdaNode<TestInput>(_ => NodeStatus.Running);
     var parallelNode = new ParallelNode<TestInput>([child1, child2,], 2);
 
-    var result = parallelNode.Tick(new());
+    var testInput = new TestInput();
+    var result = parallelNode.Tick(testInput);
 
     Assert.That(result, Is.EqualTo(NodeStatus.Running));
   }
@@ -170,7 +180,8 @@ public class ParallelNodeTests : BaseNodeTests<ParallelNode<TestInput>>
 
     var parallelNode = new ParallelNode<TestInput>([child1, child2, child3, child4,], 1);
 
-    parallelNode.Tick(new());
+    var testInput = new TestInput();
+    parallelNode.Tick(testInput);
 
     Assert.Multiple(() => {
         Assert.That(child1Ticked, Is.True, "Child 1 should be ticked");

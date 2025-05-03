@@ -41,7 +41,8 @@ public class ResetterNodeTests : BaseNodeTests<ResetterNode<TestInput>>
   public void Tick_ReturnsChildStatus(NodeStatus expectedStatus)
   {
     var node = CreateSpecificNode(expectedStatus, ResetRules.Never);
-    var result = node.Tick(new());
+    var testInput = new TestInput();
+    var result = node.Tick(testInput);
     Assert.That(result, Is.EqualTo(expectedStatus));
   }
 
@@ -74,7 +75,8 @@ public class ResetterNodeTests : BaseNodeTests<ResetterNode<TestInput>>
   public void Tick_ResetsChildBasedOnRules(NodeStatus childStatus, ResetRules rules, bool shouldReset)
   {
     var node = CreateSpecificNode(childStatus, rules);
-    node.Tick(new());
+    var testInput = new TestInput();
+    node.Tick(testInput);
     Assert.That(_childResetCalled, Is.EqualTo(shouldReset));
   }
 }

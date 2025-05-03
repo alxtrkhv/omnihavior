@@ -50,7 +50,8 @@ public class UtilityNodeTests : BaseNodeTests<UtilityNode<TestInput>>
     );
 
     var utilityNode = new UtilityNode<TestInput>(new[] { node1, node2, node3 });
-    utilityNode.Tick(new());
+    var testInput = new TestInput();
+    utilityNode.Tick(testInput);
 
     Assert.Multiple(() => {
         Assert.That(node1Executed, Is.False);
@@ -82,7 +83,8 @@ public class UtilityNodeTests : BaseNodeTests<UtilityNode<TestInput>>
     );
 
     var utilityNode = new UtilityNode<TestInput>([node1, node2,], minEvaluationThreshold: 1.0f);
-    utilityNode.Tick(new());
+    var testInput = new TestInput();
+    utilityNode.Tick(testInput);
 
     Assert.Multiple(() => {
         Assert.That(node1Executed, Is.False);
@@ -121,7 +123,8 @@ public class UtilityNodeTests : BaseNodeTests<UtilityNode<TestInput>>
     );
 
     var utilityNode = new UtilityNode<TestInput>([node1, node2, node3,]);
-    utilityNode.Tick(new());
+    var testInput = new TestInput();
+    utilityNode.Tick(testInput);
 
     Assert.Multiple(() => {
         Assert.That(node1Executed, Is.False);
@@ -161,7 +164,8 @@ public class UtilityNodeTests : BaseNodeTests<UtilityNode<TestInput>>
     );
 
     var utilityNode = new UtilityNode<TestInput>([node1, node2, node3,], UtilityRules.IfEqualSelectLast);
-    utilityNode.Tick(new());
+    var testInput = new TestInput();
+    utilityNode.Tick(testInput);
 
     Assert.Multiple(() => {
         Assert.That(node1Executed, Is.False);
@@ -175,7 +179,8 @@ public class UtilityNodeTests : BaseNodeTests<UtilityNode<TestInput>>
   public void Tick_EmptyNode_ReturnsFailureByDefault()
   {
     var utilityNode = new UtilityNode<TestInput>([]);
-    var result = utilityNode.Tick(new());
+    var testInput = new TestInput();
+    var result = utilityNode.Tick(testInput);
     Assert.That(result, Is.EqualTo(NodeStatus.Failure));
   }
 
@@ -183,7 +188,8 @@ public class UtilityNodeTests : BaseNodeTests<UtilityNode<TestInput>>
   public void Tick_EmptyNode_ReturnsSuccessWhenRuleSet()
   {
     var utilityNode = new UtilityNode<TestInput>([], UtilityRules.InterceptFlowsFailureIfEmpty);
-    var result = utilityNode.Tick(new());
+    var testInput = new TestInput();
+    var result = utilityNode.Tick(testInput);
     Assert.That(result, Is.EqualTo(NodeStatus.Success));
   }
 
@@ -194,7 +200,8 @@ public class UtilityNodeTests : BaseNodeTests<UtilityNode<TestInput>>
     var node2 = new LambdaEvaluatableNode<TestInput>(_ => NodeStatus.Success, _ => 0.8f);
 
     var utilityNode = new UtilityNode<TestInput>([node1, node2,], minEvaluationThreshold: 1.0f);
-    var result = utilityNode.Tick(new());
+    var testInput = new TestInput();
+    var result = utilityNode.Tick(testInput);
 
     Assert.That(result, Is.EqualTo(NodeStatus.Failure));
   }
@@ -210,7 +217,8 @@ public class UtilityNodeTests : BaseNodeTests<UtilityNode<TestInput>>
       UtilityRules.InterceptFlowsFailureIfNoActionPassesThreshold,
       minEvaluationThreshold: 1.0f
     );
-    var result = utilityNode.Tick(new());
+    var testInput = new TestInput();
+    var result = utilityNode.Tick(testInput);
 
     Assert.That(result, Is.EqualTo(NodeStatus.Success));
   }
@@ -223,7 +231,8 @@ public class UtilityNodeTests : BaseNodeTests<UtilityNode<TestInput>>
   {
     var node = new LambdaEvaluatableNode<TestInput>(_ => childStatus, _ => 1.0f);
     var utilityNode = new UtilityNode<TestInput>([node,]);
-    var status = utilityNode.Tick(new());
+    var testInput = new TestInput();
+    var status = utilityNode.Tick(testInput);
 
     Assert.That(status, Is.EqualTo(expectedStatus));
   }
@@ -236,7 +245,8 @@ public class UtilityNodeTests : BaseNodeTests<UtilityNode<TestInput>>
   {
     var node = new LambdaEvaluatableNode<TestInput>(_ => childStatus, _ => 1.0f);
     var utilityNode = new UtilityNode<TestInput>([node,], UtilityRules.InterceptChildsFailure);
-    var status = utilityNode.Tick(new());
+    var testInput = new TestInput();
+    var status = utilityNode.Tick(testInput);
     Assert.That(status, Is.EqualTo(expectedStatus));
   }
 
@@ -272,7 +282,8 @@ public class UtilityNodeTests : BaseNodeTests<UtilityNode<TestInput>>
 
     var utilityNode = new UtilityNode<TestInput>([node1, node2,]);
 
-    utilityNode.Tick(new());
+    var testInput = new TestInput();
+    utilityNode.Tick(testInput);
     Assert.Multiple(() => {
         Assert.That(eval1Count, Is.EqualTo(1), "Eval 1 count after first tick");
         Assert.That(eval2Count, Is.EqualTo(1), "Eval 2 count after first tick");
@@ -282,7 +293,7 @@ public class UtilityNodeTests : BaseNodeTests<UtilityNode<TestInput>>
     );
 
 
-    utilityNode.Tick(new());
+    utilityNode.Tick(testInput);
     Assert.Multiple(() => {
         Assert.That(eval1Count, Is.EqualTo(1), "Eval 1 count after second tick - should not change");
         Assert.That(eval2Count, Is.EqualTo(1), "Eval 2 count after second tick - should not change");
@@ -312,14 +323,15 @@ public class UtilityNodeTests : BaseNodeTests<UtilityNode<TestInput>>
 
     var utilityNode = new UtilityNode<TestInput>([node1, node2,], lastNodeBonus: lastNodeBonus);
 
-    utilityNode.Tick(new());
+    var testInput = new TestInput();
+    utilityNode.Tick(testInput);
     Assert.Multiple(() => {
         Assert.That(node1ExecutedCount, Is.EqualTo(1), "Node 1 count after first tick");
         Assert.That(node2ExecutedCount, Is.EqualTo(0), "Node 2 count after first tick");
       }
     );
 
-    utilityNode.Tick(new());
+    utilityNode.Tick(testInput);
     Assert.Multiple(() => {
         Assert.That(node1ExecutedCount, Is.EqualTo(2), "Node 1 count after second tick");
         Assert.That(node2ExecutedCount, Is.EqualTo(0), "Node 2 count after second tick");

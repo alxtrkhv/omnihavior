@@ -47,7 +47,8 @@ public class InterceptorNodeTests : BaseNodeTests<InterceptorNode<TestInput>>
     var child = CreateMockChild();
     var node = new InterceptorNode<TestInput>(child, rule);
 
-    var result = node.Tick(new());
+    var testInput = new TestInput();
+    var result = node.Tick(testInput);
 
     Assert.Multiple(() => {
         Assert.That(result, Is.EqualTo(expectedStatus), "Node should return Success when rule matches.");
@@ -69,7 +70,8 @@ public class InterceptorNodeTests : BaseNodeTests<InterceptorNode<TestInput>>
     var child = CreateMockChild();
     var node = new InterceptorNode<TestInput>(child, rule, NodeStatus.Failure);
 
-    var result = node.Tick(new());
+    var testInput = new TestInput();
+    var result = node.Tick(testInput);
 
     Assert.Multiple(() => {
         Assert.That(result, Is.EqualTo(expectedStatus), "Node should return Failure when negative rule matches.");
@@ -91,7 +93,8 @@ public class InterceptorNodeTests : BaseNodeTests<InterceptorNode<TestInput>>
     var child = CreateMockChild();
     var node = new InterceptorNode<TestInput>(child, rule);
 
-    var result = node.Tick(new());
+    var testInput = new TestInput();
+    var result = node.Tick(testInput);
 
     Assert.Multiple(() => {
         Assert.That(result, Is.EqualTo(childStatus), "Node should return child status when rule does not match.");
@@ -109,7 +112,8 @@ public class InterceptorNodeTests : BaseNodeTests<InterceptorNode<TestInput>>
     var child = CreateMockChild();
     var node = new InterceptorNode<TestInput>(child, rule, expectedStatus);
 
-    var result = node.Tick(new());
+    var testInput = new TestInput();
+    var result = node.Tick(testInput);
 
     Assert.Multiple(() => {
         Assert.That(result, Is.EqualTo(expectedStatus), "Node should return expected status for Placeholder rule.");

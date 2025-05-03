@@ -21,7 +21,8 @@ public class SequenceNodeTests : BaseNodeTests<SequenceNode<TestInput>>
     var child2 = new LambdaNode<TestInput>(_ => NodeStatus.Success);
     var sequence = new SequenceNode<TestInput>(child1, child2);
 
-    var result = sequence.Tick(new());
+    var testInput = new TestInput();
+    var result = sequence.Tick(testInput);
 
     Assert.That(result, Is.EqualTo(NodeStatus.Success));
   }
@@ -34,7 +35,8 @@ public class SequenceNodeTests : BaseNodeTests<SequenceNode<TestInput>>
     var child3 = new LambdaNode<TestInput>(_ => NodeStatus.Success);
     var sequence = new SequenceNode<TestInput>(child1, child2, child3);
 
-    var result = sequence.Tick(new());
+    var testInput = new TestInput();
+    var result = sequence.Tick(testInput);
 
     Assert.That(result, Is.EqualTo(NodeStatus.Failure));
   }
@@ -47,7 +49,8 @@ public class SequenceNodeTests : BaseNodeTests<SequenceNode<TestInput>>
     var child3 = new LambdaNode<TestInput>(_ => NodeStatus.Success);
     var sequence = new SequenceNode<TestInput>(child1, child2, child3);
 
-    var result = sequence.Tick(new());
+    var testInput = new TestInput();
+    var result = sequence.Tick(testInput);
 
     Assert.That(result, Is.EqualTo(NodeStatus.Running));
   }
@@ -60,7 +63,8 @@ public class SequenceNodeTests : BaseNodeTests<SequenceNode<TestInput>>
     var child3 = new LambdaNode<TestInput>(_ => NodeStatus.Success);
     var sequence = new SequenceNode<TestInput>(child1, child2, child3);
 
-    var result = sequence.Tick(new());
+    var testInput = new TestInput();
+    var result = sequence.Tick(testInput);
 
     Assert.That(result, Is.EqualTo(NodeStatus.Error));
   }
@@ -82,7 +86,8 @@ public class SequenceNodeTests : BaseNodeTests<SequenceNode<TestInput>>
     );
     var sequence = new SequenceNode<TestInput>(child1, child2);
 
-    sequence.Tick(new());
+    var testInput = new TestInput();
+    sequence.Tick(testInput);
 
     Assert.Multiple(() => {
         Assert.That(child1Run, Is.True, "Child 1 should have run");
@@ -114,7 +119,8 @@ public class SequenceNodeTests : BaseNodeTests<SequenceNode<TestInput>>
     );
     var sequence = new SequenceNode<TestInput>(child1, child2, child3);
 
-    sequence.Tick(new());
+    var testInput = new TestInput();
+    sequence.Tick(testInput);
 
     Assert.Multiple(() => {
         Assert.That(child1Run, Is.True, "Child 1 should have run");
@@ -147,7 +153,8 @@ public class SequenceNodeTests : BaseNodeTests<SequenceNode<TestInput>>
     );
     var sequence = new SequenceNode<TestInput>(child1, child2, child3);
 
-    sequence.Tick(new());
+    var testInput = new TestInput();
+    sequence.Tick(testInput);
 
     Assert.Multiple(() => {
         Assert.That(child1Run, Is.True, "Child 1 should have run");
@@ -180,7 +187,8 @@ public class SequenceNodeTests : BaseNodeTests<SequenceNode<TestInput>>
     );
     var sequence = new SequenceNode<TestInput>(child1, child2, child3);
 
-    sequence.Tick(new());
+    var testInput = new TestInput();
+    sequence.Tick(testInput);
 
     Assert.Multiple(() => {
         Assert.That(child1Run, Is.True, "Child 1 should have run");
@@ -214,7 +222,8 @@ public class SequenceNodeTests : BaseNodeTests<SequenceNode<TestInput>>
     );
     var sequence = new SequenceNode<TestInput>(child1, child2, child3);
 
-    sequence.Tick(new());
+    var testInput = new TestInput();
+    sequence.Tick(testInput);
 
     Assert.Multiple(() => {
         Assert.That(child1RunCount, Is.EqualTo(1), "Child 1 should run once on first run");
@@ -223,7 +232,7 @@ public class SequenceNodeTests : BaseNodeTests<SequenceNode<TestInput>>
       }
     );
 
-    sequence.Tick(new());
+    sequence.Tick(testInput);
 
     Assert.Multiple(() => {
         Assert.That(child1RunCount, Is.EqualTo(1), "Child 1 should not run again on second run");
@@ -257,7 +266,8 @@ public class SequenceNodeTests : BaseNodeTests<SequenceNode<TestInput>>
     );
     var sequence = new SequenceNode<TestInput>(child1, child2, child3);
 
-    sequence.Tick(new());
+    var testInput = new TestInput();
+    sequence.Tick(testInput);
 
     Assert.Multiple(() => {
         Assert.That(child1RunCount, Is.EqualTo(1), "Child 1 should run once on first run");
@@ -266,7 +276,7 @@ public class SequenceNodeTests : BaseNodeTests<SequenceNode<TestInput>>
       }
     );
 
-    sequence.Tick(new());
+    sequence.Tick(testInput);
 
     Assert.Multiple(() => {
         Assert.That(child1RunCount, Is.EqualTo(1), "Child 1 should not run again on second run");
@@ -281,7 +291,8 @@ public class SequenceNodeTests : BaseNodeTests<SequenceNode<TestInput>>
   {
     var sequence = new SequenceNode<TestInput>();
 
-    var result = sequence.Tick(new());
+    var testInput = new TestInput();
+    var result = sequence.Tick(testInput);
 
     Assert.That(result, Is.EqualTo(NodeStatus.Success));
   }

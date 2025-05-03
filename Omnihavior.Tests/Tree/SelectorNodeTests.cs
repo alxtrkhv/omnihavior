@@ -22,7 +22,8 @@ public class SelectorNodeTests : BaseNodeTests<SelectorNode<TestInput>>
     var child3 = new LambdaNode<TestInput>(_ => NodeStatus.Failure);
     var selector = new SelectorNode<TestInput>(child1, child2, child3);
 
-    var result = selector.Tick(new());
+    var testInput = new TestInput();
+    var result = selector.Tick(testInput);
 
     Assert.That(result, Is.EqualTo(NodeStatus.Success));
   }
@@ -34,7 +35,8 @@ public class SelectorNodeTests : BaseNodeTests<SelectorNode<TestInput>>
     var child2 = new LambdaNode<TestInput>(_ => NodeStatus.Failure);
     var selector = new SelectorNode<TestInput>(child1, child2);
 
-    var result = selector.Tick(new());
+    var testInput = new TestInput();
+    var result = selector.Tick(testInput);
 
     Assert.That(result, Is.EqualTo(NodeStatus.Failure));
   }
@@ -47,7 +49,8 @@ public class SelectorNodeTests : BaseNodeTests<SelectorNode<TestInput>>
     var child3 = new LambdaNode<TestInput>(_ => NodeStatus.Success);
     var selector = new SelectorNode<TestInput>(child1, child2, child3);
 
-    var result = selector.Tick(new());
+    var testInput = new TestInput();
+    var result = selector.Tick(testInput);
 
     Assert.That(result, Is.EqualTo(NodeStatus.Running));
   }
@@ -60,7 +63,8 @@ public class SelectorNodeTests : BaseNodeTests<SelectorNode<TestInput>>
     var child3 = new LambdaNode<TestInput>(_ => NodeStatus.Success);
     var selector = new SelectorNode<TestInput>(child1, child2, child3);
 
-    var result = selector.Tick(new());
+    var testInput = new TestInput();
+    var result = selector.Tick(testInput);
 
     Assert.That(result, Is.EqualTo(NodeStatus.Error));
   }
@@ -88,7 +92,8 @@ public class SelectorNodeTests : BaseNodeTests<SelectorNode<TestInput>>
     );
     var selector = new SelectorNode<TestInput>(child1, child2, child3);
 
-    selector.Tick(new());
+    var testInput = new TestInput();
+    selector.Tick(testInput);
 
     Assert.Multiple(() => {
         Assert.That(child1Run, Is.True, "Child 1 should have run");
@@ -121,7 +126,8 @@ public class SelectorNodeTests : BaseNodeTests<SelectorNode<TestInput>>
     );
     var selector = new SelectorNode<TestInput>(child1, child2, child3);
 
-    selector.Tick(new());
+    var testInput = new TestInput();
+    selector.Tick(testInput);
 
     Assert.Multiple(() => {
         Assert.That(child1Run, Is.True, "Child 1 should have run");
@@ -154,7 +160,8 @@ public class SelectorNodeTests : BaseNodeTests<SelectorNode<TestInput>>
     );
     var selector = new SelectorNode<TestInput>(child1, child2, child3);
 
-    selector.Tick(new());
+    var testInput = new TestInput();
+    selector.Tick(testInput);
 
     Assert.Multiple(() => {
         Assert.That(child1Run, Is.True, "Child 1 should have run");
@@ -188,7 +195,8 @@ public class SelectorNodeTests : BaseNodeTests<SelectorNode<TestInput>>
     );
     var selector = new SelectorNode<TestInput>(child1, child2, child3);
 
-    selector.Tick(new());
+    var testInput = new TestInput();
+    selector.Tick(testInput);
 
     Assert.Multiple(() => {
         Assert.That(child1RunCount, Is.EqualTo(1), "Child 1 should run once on first run");
@@ -197,7 +205,7 @@ public class SelectorNodeTests : BaseNodeTests<SelectorNode<TestInput>>
       }
     );
 
-    selector.Tick(new());
+    selector.Tick(testInput);
 
     Assert.Multiple(() => {
         Assert.That(child1RunCount, Is.EqualTo(1), "Child 1 should not run again on second run");
@@ -212,7 +220,8 @@ public class SelectorNodeTests : BaseNodeTests<SelectorNode<TestInput>>
   {
     var selector = new SelectorNode<TestInput>();
 
-    var result = selector.Tick(new());
+    var testInput = new TestInput();
+    var result = selector.Tick(testInput);
 
     Assert.That(result, Is.EqualTo(NodeStatus.Failure));
   }
