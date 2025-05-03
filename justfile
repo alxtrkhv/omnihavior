@@ -21,10 +21,19 @@ set-version new_version:
     new_version = "{{ new_version }}"
     csproj_path = Path("Omnihavior/Omnihavior.csproj")
     tag_name = f"release/v{new_version}"
+    commit_message = f"release: v{new_version}"
 
-    print(f"Setting version to {new_version} in {csproj_path}...")
-
+    print("Checking git status...")
     try:
+        # Check for uncommitted changes
+        status_result = subprocess.run(["git", "status", "--porcelain"], check=True, capture_output=True, text=True)
+        if status_result.stdout:
+            print("Error: Git working directory is not clean. Please commit or stash changes.")
+            print(status_result.stdout)
+            sys.exit(1)
+        print("Git status is clean.")
+
+        print(f"Setting version to {new_version} in {csproj_path}...")
         content = csproj_path.read_text()
         # Use regex to replace the version within the <Version> tag
         updated_content, count = re.subn(
@@ -41,13 +50,34 @@ set-version new_version:
         csproj_path.write_text(updated_content)
         print(f"Successfully updated {csproj_path}")
 
+        print(f"Staging {csproj_path}...")
+        subprocess.run(["git", "add", str(csproj_path)], check=True)
+        print(f"Successfully staged {csproj_path}")
+
+        print(f"Creating git commit with message '{commit_message}'...")
+        subprocess.run(["git", "commit", "-m", commit_message], check=True, capture_output=True, text=True)
+        print("Successfully created git commit.")
+
         print(f"Creating git tag {tag_name}...")
-        # Use check=True to raise an exception if the command fails
         subprocess.run(["git", "tag", tag_name], check=True, capture_output=True, text=True)
         print(f"Successfully created git tag {tag_name}")
 
     except FileNotFoundError:
         print(f"Error: {csproj_path} not found.")
+        sys.exit(1)
+    except subprocess.CalledProcessError as e:
+        command = " ".join(e.cmd)
+        print(f"Error executing git command '{command}':")
+        print(e.stderr)
+        # Optional: Add revert logic here if needed
+        # print("Attempting to revert changes...")
+        # try:
+        #     csproj_path.write_text(content) # Revert file content
+        #     subprocess.run(["git", "reset", "HEAD", str(csproj_path)], check=True) # Unstage
+        #     # How to handle commit revert? Maybe git reset --hard HEAD~1 ? Risky.
+        #     print(f"Reverted changes in {csproj_path} and unstaged.")
+        # except Exception as revert_e:
+        #     print(f"Failed to revert changes: {revert_e}")
         sys.exit(1)
     except subprocess.CalledProcessError as e:
         print(f"Error creating git tag {tag_name}:")
