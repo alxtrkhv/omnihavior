@@ -6,13 +6,13 @@ namespace Omnihavior.State;
 public static class StateMachineNodeExtensions
 {
   public static void AddState<TInputData>(this StateMachineNode<TInputData> node, string key,
-    Func<TInputData, StateMachineContext<TInputData>, NodeStatus>? tick = null,
-    Action<TInputData, StateMachineContext<TInputData>>? enter = null,
-    Action<TInputData, StateMachineContext<TInputData>>? exit = null,
-    Action<TInputData, StateMachineContext<TInputData>>? reset = null)
+    Func<TInputData, NodeStatus>? tick = null,
+    Action<TInputData>? enter = null,
+    Action<TInputData>? exit = null,
+    Action<TInputData>? reset = null)
   {
-    var newState = new LambdaStateNode<TInputData>(key, tick, enter, exit, reset);
-    node.AddState(newState);
+    var newState = new LambdaStateNode<TInputData>(tick, enter, exit, reset);
+    node.AddState(key, newState);
   }
 
   public static void AddTransition<TInputData>(this StateMachineNode<TInputData> node, string? from, string to,

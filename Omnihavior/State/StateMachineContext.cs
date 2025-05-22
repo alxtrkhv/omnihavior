@@ -6,9 +6,6 @@ namespace Omnihavior.State;
 
 public readonly struct StateMachineContext<TInputData>
 {
-  public StateMachineNode<TInputData> Root { get; }
-  public StateMachineNode<TInputData>? Parent { get; }
-
   public int Layer { get; }
 
   public int Index { get; }
@@ -17,11 +14,8 @@ public readonly struct StateMachineContext<TInputData>
 
   private readonly List<int> _state;
 
-  public StateMachineContext(StateMachineNode<TInputData> root, StateMachineNode<TInputData>? parent, int layer,
-    int index, Dictionary<string, int[]>? stateMap, List<int>? state = null)
+  public StateMachineContext(int layer, int index, Dictionary<string, int[]>? stateMap, List<int>? state = null)
   {
-    Root = root;
-    Parent = parent;
     Layer = layer;
     Index = index;
     _stateMap = stateMap ?? [];
@@ -55,16 +49,16 @@ public readonly struct StateMachineContext<TInputData>
     }
   }
 
-  public StateMachineContext<TInputData> GetChildContext(StateMachineNode<TInputData> parent, int index)
+  public StateMachineContext<TInputData> GetChildContext(int index)
   {
     var newLayer = Layer + 1;
 
-    return new(Root, parent, newLayer, index, _stateMap, _state);
+    return new(newLayer, index, _stateMap, _state);
   }
 
-  public void RegisterStateInMap(StateMachineNode<TInputData> parent, IStateNode<TInputData> child, int index)
+  public void RegisterStateInMap(string parentKey, string childKey, int index)
   {
-    _stateMap[child.Key] = _stateMap[parent.Key].Concat([index,]).ToArray();
+    _stateMap[childKey] = _stateMap[parentKey].Concat([index,]).ToArray();
   }
 
   public void RegisterChildLayer()

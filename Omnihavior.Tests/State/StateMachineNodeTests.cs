@@ -13,23 +13,28 @@ public class StateMachineNodeTests : BaseNodeTests<StateMachineNode<TestInput>>
     params IBehaviorNode<TestInput>[] children)
   {
     childrenNumber = null;
-    var states = children.Select(IStateNode<TestInput> (x, index) =>
-      new LambdaStateNode<TestInput>(index.ToString(), reset: (input, _) => x.Reset(input))
+    var stateNodes = children.Select(childNode =>
+      new LambdaStateNode<TestInput>(reset: childNode.Reset)
     ).ToList();
 
-    var stateMachine = new StateMachineNode<TestInput>("Root", states);
+    var stateMachine = new StateMachineNode<TestInput>();
+    for (var i = 0; i < stateNodes.Count; i++) {
+      var stateNode = stateNodes[i];
+      stateMachine.AddState($"{i}", stateNode);
+    }
+
     stateMachine.InitializeRoot(CreateInputData());
 
     return stateMachine;
   }
 
   [Test]
-  public void Exit_EntersNullState()
+  public void Exit_WithoutDefaultState_EntersNullState()
   {
     var input = CreateInputData();
-    var state = new LambdaStateNode<TestInput>("State1");
-    var stateMachine = new StateMachineNode<TestInput>("Root", [state,]);
-    stateMachine.SetDefaultState("State1");
+    var state = new LambdaStateNode<TestInput>();
+    var stateMachine = new StateMachineNode<TestInput>();
+    stateMachine.AddState("State1", state);
     stateMachine.InitializeRoot(input);
 
     stateMachine.Exit(input);
@@ -42,9 +47,9 @@ public class StateMachineNodeTests : BaseNodeTests<StateMachineNode<TestInput>>
   {
     var input = CreateInputData();
     var mockState = Substitute.For<IStateNode<TestInput>>();
-    mockState.Key.Returns("MockState");
 
-    var stateMachine = new StateMachineNode<TestInput>("Root", [mockState,]);
+    var stateMachine = new StateMachineNode<TestInput>();
+    stateMachine.AddState("MockState", mockState);
     stateMachine.SetDefaultState("MockState");
     stateMachine.InitializeRoot(input);
 
@@ -58,15 +63,17 @@ public class StateMachineNodeTests : BaseNodeTests<StateMachineNode<TestInput>>
   {
     var input = CreateInputData();
     var deepMockState = Substitute.For<IStateNode<TestInput>>();
-    deepMockState.Key.Returns("DeepMockState");
 
-    var innerStateMachine = new StateMachineNode<TestInput>("InnerSM", [deepMockState,]);
+    var innerStateMachine = new StateMachineNode<TestInput>();
+    innerStateMachine.AddState("DeepMockState", deepMockState);
     innerStateMachine.SetDefaultState("DeepMockState");
 
-    var outerStateMachine = new StateMachineNode<TestInput>("OuterSM", [innerStateMachine,]);
+    var outerStateMachine = new StateMachineNode<TestInput>();
+    outerStateMachine.AddState("InnerSM", innerStateMachine);
     outerStateMachine.SetDefaultState("InnerSM");
 
-    var rootStateMachine = new StateMachineNode<TestInput>("Root", [outerStateMachine,]);
+    var rootStateMachine = new StateMachineNode<TestInput>();
+    rootStateMachine.AddState("OuterSM", outerStateMachine);
     rootStateMachine.SetDefaultState("OuterSM");
     rootStateMachine.InitializeRoot(input);
 
@@ -80,15 +87,17 @@ public class StateMachineNodeTests : BaseNodeTests<StateMachineNode<TestInput>>
   {
     var input = CreateInputData();
     var deepMockState = Substitute.For<IStateNode<TestInput>>();
-    deepMockState.Key.Returns("DeepMockState");
 
-    var innerStateMachine = new StateMachineNode<TestInput>("InnerSM", [deepMockState,]);
+    var innerStateMachine = new StateMachineNode<TestInput>();
+    innerStateMachine.AddState("DeepMockState", deepMockState);
     innerStateMachine.SetDefaultState("DeepMockState");
 
-    var outerStateMachine = new StateMachineNode<TestInput>("OuterSM", [innerStateMachine,]);
+    var outerStateMachine = new StateMachineNode<TestInput>();
+    outerStateMachine.AddState("InnerSM", innerStateMachine);
     outerStateMachine.SetDefaultState("InnerSM");
 
-    var rootStateMachine = new StateMachineNode<TestInput>("Root", [outerStateMachine,]);
+    var rootStateMachine = new StateMachineNode<TestInput>();
+    rootStateMachine.AddState("OuterSM", outerStateMachine);
     rootStateMachine.SetDefaultState("OuterSM");
     rootStateMachine.InitializeRoot(input);
 
@@ -100,19 +109,21 @@ public class StateMachineNodeTests : BaseNodeTests<StateMachineNode<TestInput>>
   {
     var input = CreateInputData();
     var state1A = Substitute.For<IStateNode<TestInput>>();
-    state1A.Key.Returns("State1A");
     var state2A = Substitute.For<IStateNode<TestInput>>();
-    state2A.Key.Returns("State2A");
     var state2B = Substitute.For<IStateNode<TestInput>>();
-    state2B.Key.Returns("State2B");
 
-    var subSm1 = new StateMachineNode<TestInput>("SubSM1", [state1A,]);
+    var subSm1 = new StateMachineNode<TestInput>();
+    subSm1.AddState("State1A", state1A);
     subSm1.SetDefaultState("State1A");
 
-    var subSm2 = new StateMachineNode<TestInput>("SubSM2", [state2A, state2B,]);
+    var subSm2 = new StateMachineNode<TestInput>();
+    subSm2.AddState("State2A", state2A);
+    subSm2.AddState("State2B", state2B);
     subSm2.SetDefaultState("State2A");
 
-    var rootSm = new StateMachineNode<TestInput>("Root", [subSm1, subSm2,]);
+    var rootSm = new StateMachineNode<TestInput>();
+    rootSm.AddState("SubSM1", subSm1);
+    rootSm.AddState("SubSM2", subSm2);
     rootSm.SetDefaultState("SubSM1");
 
     rootSm.InitializeRoot(input);
@@ -126,9 +137,9 @@ public class StateMachineNodeTests : BaseNodeTests<StateMachineNode<TestInput>>
         state1A.Received(1).Exit(input);
         state2A.DidNotReceive().Enter(input);
         state2B.Received(1).Enter(input);
-        Assert.That(rootSm.CurrentState, Is.EqualTo(subSm2), "RootSM should be in SubSM2");
+        Assert.That(rootSm.CurrentState.Value, Is.EqualTo(subSm2), "RootSM should be in SubSM2");
         Assert.That(subSm1.CurrentState, Is.EqualTo(StateMachineNode<TestInput>.NullState), "SubSM1 should be exited");
-        Assert.That(subSm2.CurrentState, Is.EqualTo(state2B), "SubSM2 should be in State2B");
+        Assert.That(subSm2.CurrentState.Value, Is.EqualTo(state2B), "SubSM2 should be in State2B");
       }
     );
   }
@@ -138,18 +149,18 @@ public class StateMachineNodeTests : BaseNodeTests<StateMachineNode<TestInput>>
   {
     var input = CreateInputData();
     var defaultState = Substitute.For<IStateNode<TestInput>>();
-    defaultState.Key.Returns("DefaultState");
     var otherState = Substitute.For<IStateNode<TestInput>>();
-    otherState.Key.Returns("OtherState");
 
-    var stateMachine = new StateMachineNode<TestInput>("Root", [otherState, defaultState,]);
+    var stateMachine = new StateMachineNode<TestInput>();
+    stateMachine.AddState("DefaultState", defaultState);
+    stateMachine.AddState("OtherState", otherState);
     stateMachine.SetDefaultState("DefaultState");
 
     stateMachine.InitializeRoot(input);
 
     Assert.Multiple(() => {
         Assert.That(
-          stateMachine.CurrentState,
+          stateMachine.CurrentState.Value,
           Is.EqualTo(defaultState),
           "StateMachine should be in the default state."
         );
@@ -164,11 +175,11 @@ public class StateMachineNodeTests : BaseNodeTests<StateMachineNode<TestInput>>
   {
     var input = CreateInputData();
     var state1 = Substitute.For<IStateNode<TestInput>>();
-    state1.Key.Returns("State1");
     var state2 = Substitute.For<IStateNode<TestInput>>();
-    state2.Key.Returns("State2");
 
-    var stateMachine = new StateMachineNode<TestInput>("Root", [state1, state2,]);
+    var stateMachine = new StateMachineNode<TestInput>();
+    stateMachine.AddState("State1", state1);
+    stateMachine.AddState("State2", state2);
 
     stateMachine.InitializeRoot(input);
 
@@ -189,13 +200,14 @@ public class StateMachineNodeTests : BaseNodeTests<StateMachineNode<TestInput>>
   {
     var input = CreateInputData();
     var stateA = Substitute.For<IStateNode<TestInput>>();
-    stateA.Key.Returns("StateA");
     var stateB = Substitute.For<IStateNode<TestInput>>();
-    stateB.Key.Returns("StateB");
 
     var transition = new LambdaTransition<TestInput>("StateA", "StateB", _ => true);
 
-    var stateMachine = new StateMachineNode<TestInput>("Root", [stateA, stateB,], [transition,]);
+    var stateMachine = new StateMachineNode<TestInput>();
+    stateMachine.AddState("StateA", stateA);
+    stateMachine.AddState("StateB", stateB);
+    stateMachine.AddTransition(transition);
     stateMachine.SetDefaultState("StateA");
 
     stateMachine.InitializeRoot(input);
@@ -205,8 +217,12 @@ public class StateMachineNodeTests : BaseNodeTests<StateMachineNode<TestInput>>
     stateMachine.Tick(input);
 
     Assert.Multiple(() => {
-        Assert.That(preTickState, Is.EqualTo(stateA), "StateMachine should be in StateA before tick.");
-        Assert.That(stateMachine.CurrentState, Is.EqualTo(stateB), "StateMachine should have transitioned to StateB.");
+        Assert.That(preTickState.Value, Is.EqualTo(stateA), "StateMachine should be in StateA before tick.");
+        Assert.That(
+          stateMachine.CurrentState.Value,
+          Is.EqualTo(stateB),
+          "StateMachine should have transitioned to StateB."
+        );
         stateA.Received(1).Exit(input);
         stateB.Received(1).Enter(input);
       }
@@ -218,15 +234,16 @@ public class StateMachineNodeTests : BaseNodeTests<StateMachineNode<TestInput>>
   {
     var input = CreateInputData();
     var stateA = Substitute.For<IStateNode<TestInput>>();
-    stateA.Key.Returns("StateA");
     stateA.Tick(input).Returns(NodeStatus.Running);
 
     var stateB = Substitute.For<IStateNode<TestInput>>();
-    stateB.Key.Returns("StateB");
 
     var transition = new LambdaTransition<TestInput>("StateA", "StateB", _ => false);
 
-    var stateMachine = new StateMachineNode<TestInput>("Root", [stateA, stateB,], [transition,]);
+    var stateMachine = new StateMachineNode<TestInput>();
+    stateMachine.AddState("StateA", stateA);
+    stateMachine.AddState("StateB", stateB);
+    stateMachine.AddTransition(transition);
     stateMachine.SetDefaultState("StateA");
 
     stateMachine.InitializeRoot(input);
@@ -236,8 +253,8 @@ public class StateMachineNodeTests : BaseNodeTests<StateMachineNode<TestInput>>
     stateMachine.Tick(input);
 
     Assert.Multiple(() => {
-        Assert.That(preTickState, Is.EqualTo(stateA), "StateMachine should be in StateA before tick.");
-        Assert.That(stateMachine.CurrentState, Is.EqualTo(stateA), "StateMachine should remain in StateA.");
+        Assert.That(preTickState.Value, Is.EqualTo(stateA), "StateMachine should be in StateA before tick.");
+        Assert.That(stateMachine.CurrentState.Value, Is.EqualTo(stateA), "StateMachine should remain in StateA.");
         stateA.Received(1).Tick(input);
         stateA.DidNotReceive().Exit(input);
         stateB.DidNotReceive().Enter(input);
@@ -253,10 +270,10 @@ public class StateMachineNodeTests : BaseNodeTests<StateMachineNode<TestInput>>
   {
     var input = CreateInputData();
     var mockState = Substitute.For<IStateNode<TestInput>>();
-    mockState.Key.Returns("MockState");
     mockState.Tick(input).Returns(expectedStatus);
 
-    var stateMachine = new StateMachineNode<TestInput>("Root", [mockState,]);
+    var stateMachine = new StateMachineNode<TestInput>();
+    stateMachine.AddState("MockState", mockState);
     stateMachine.SetDefaultState("MockState");
 
     stateMachine.InitializeRoot(input);

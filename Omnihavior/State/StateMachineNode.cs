@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Omnihavior.Core;
 
@@ -10,54 +9,42 @@ public enum StateMachineRules
   InterceptChildsFailure = 1 << 0,
   InterceptChildsSuccess = 1 << 1,
   NonBlockingErrors = 1 << 2,
-  AllowManualStateChangeWhenBlocked = 1 << 3,
+  AllowManualStateChangesWhenBlocked = 1 << 3,
 }
 
 public class StateMachineNode<TInputData> : IStateNode<TInputData>
 {
   public const string NullStateKey = "Null";
-  public static readonly IStateNode<TInputData> NullState = new NullState<TInputData>();
+  private const string RootKey = "Root";
+  public static readonly StateEntry<TInputData> NullState = new(NullStateKey, new NullState<TInputData>());
 
-  private readonly List<IStateNode<TInputData>> _states;
-  private readonly List<ITransition<TInputData>> _transitions;
+  private readonly List<StateEntry<TInputData>> _states = [];
+  private readonly List<ITransition<TInputData>> _globalTransitions = [];
   private readonly StateMachineRules _rules;
 
-  private StateMachineContext<TInputData> _context;
   private int _currentStateIndex;
 
   private int _defaultStateIndex;
   private bool _blockTransitions;
 
-  public string Key { get; set;  }
+  public StateEntry<TInputData> CurrentState { get; private set; }
 
-  public IStateNode<TInputData> CurrentState { get; private set; }
-
-  public StateMachineContext<TInputData> Context
-  {
-    get => _context;
-    set => SetAndPropagateContext(value);
-  }
+  public StateMachineContext<TInputData> Context { get; private set; }
 
   public StateMachineContext<TInputData> RootContext => new(
-    this,
-    null,
     -1,
     0,
     new() {
-      { Key, [] },
+      { RootKey, [] },
       { NullStateKey, [int.MinValue,] },
     },
     [-1,]
   );
 
-  public StateMachineNode(string? key = null, List<IStateNode<TInputData>>? states = null,
-    List<ITransition<TInputData>>? transitions = null, StateMachineRules rules = StateMachineRules.None,
-    string? defaultState = null)
+  public StateMachineNode(StateMachineRules rules = StateMachineRules.None)
   {
-    Key = string.IsNullOrWhiteSpace(key) ? string.Empty : key;
-    _states = states ?? [];
-    _transitions = transitions ?? [];
     _rules = rules;
+
     CurrentState = NullState;
     _currentStateIndex = int.MinValue;
     _defaultStateIndex = _currentStateIndex;
@@ -65,18 +52,18 @@ public class StateMachineNode<TInputData> : IStateNode<TInputData>
 
   public void InitializeRoot(TInputData input)
   {
-    Context = RootContext;
+    SetAndPropagateContext(RootContext, RootKey);
     Enter(input);
   }
 
   public NodeStatus Tick(TInputData input)
   {
     if (TryRunTransitions(input)) {
-      AchieveTargetState(_context.GetSelfState(), input);
+      AchieveTargetState(Context.GetSelfState(), input);
     }
 
     _blockTransitions = false;
-    var status = CurrentState.Tick(input);
+    var status = CurrentState.Value.Tick(input);
 
     switch (status) {
       case NodeStatus.Error:
@@ -100,19 +87,19 @@ public class StateMachineNode<TInputData> : IStateNode<TInputData>
   public void Reset(TInputData input)
   {
     foreach (var state in _states) {
-      state.Reset(input);
+      state.Value.Reset(input);
     }
 
-    CurrentState.Exit(input);
+    CurrentState.Value.Exit(input);
     _currentStateIndex = int.MinValue;
     CurrentState = NullState;
 
-    _context.Reset();
+    Context.Reset();
   }
 
   public void Enter(TInputData input)
   {
-    AchieveTargetState(_context.GetSelfState(), input);
+    AchieveTargetState(Context.GetSelfState(), input);
   }
 
   public void Exit(TInputData input)
@@ -120,14 +107,29 @@ public class StateMachineNode<TInputData> : IStateNode<TInputData>
     AchieveTargetState(int.MinValue, input);
   }
 
-  public void AddState(IStateNode<TInputData> state)
+  public void AddState(string key, IStateNode<TInputData> state)
   {
-    _states.Add(state);
+    _states.Add(new(key, state));
   }
 
   public void AddTransition(ITransition<TInputData> transition)
   {
-    _transitions.Add(transition);
+    if (transition.From == null) {
+      _globalTransitions.Add(transition);
+      return;
+    }
+
+    var entry = default(StateEntry<TInputData>?);
+
+    var index = _states.FindIndex(s => s.Key == transition.From);
+    if (index == -1) {
+      entry = new StateEntry<TInputData>(transition.From, NullState.Value);
+      _states.Add(entry.Value);
+    } else {
+      entry = _states[index];
+    }
+
+    entry.Value.Transitions.Add(transition);
   }
 
   public void SetDefaultState(string? stateKey)
@@ -148,11 +150,11 @@ public class StateMachineNode<TInputData> : IStateNode<TInputData>
 
   public void SetState(string? key)
   {
-    if (_blockTransitions && !_rules.HasFlag(StateMachineRules.AllowManualStateChangeWhenBlocked)) {
+    if (_blockTransitions && !_rules.HasFlag(StateMachineRules.AllowManualStateChangesWhenBlocked)) {
       return;
     }
 
-    _context.SetState(key);
+    Context.SetState(key);
   }
 
   private void AchieveTargetState(int stateIndex, TInputData input)
@@ -163,13 +165,13 @@ public class StateMachineNode<TInputData> : IStateNode<TInputData>
 
     var state = StateByIndex(ref stateIndex);
 
-    CurrentState.Exit(input);
+    CurrentState.Value.Exit(input);
     _currentStateIndex = stateIndex;
     CurrentState = state;
-    CurrentState.Enter(input);
+    CurrentState.Value.Enter(input);
   }
 
-  private IStateNode<TInputData> StateByIndex(ref int targetStateIndex)
+  private StateEntry<TInputData> StateByIndex(ref int targetStateIndex)
   {
     if (targetStateIndex >= _states.Count) {
       return NullState;
@@ -192,34 +194,48 @@ public class StateMachineNode<TInputData> : IStateNode<TInputData>
       return false;
     }
 
-    foreach (var transition in _transitions) {
-      if (transition.From != null && transition.From != CurrentState.Key) {
-        continue;
+    foreach (var transition in _globalTransitions) {
+      if (TryRunTransition(transition)) {
+        return true;
       }
+    }
 
-      var shouldInitiateTransition = transition.ConditionFulfilled(input);
-      if (!shouldInitiateTransition) {
-        continue;
+    foreach (var currentStateTransition in CurrentState.Transitions) {
+      if (TryRunTransition(currentStateTransition)) {
+        return true;
       }
-
-      _context.SetState(transition.To);
-      return true;
     }
 
     return false;
+
+    bool TryRunTransition(ITransition<TInputData> transition)
+    {
+      var shouldInitiateTransition = transition.ConditionFulfilled(input);
+      if (!shouldInitiateTransition) {
+        return false;
+      }
+
+      Context.SetState(transition.To);
+      return true;
+    }
   }
 
-  private void SetAndPropagateContext(StateMachineContext<TInputData> value)
+  private void SetAndPropagateContext(StateMachineContext<TInputData> value, string key)
   {
-    _context = value;
+    Context = value;
 
     for (var i = 0; i < _states.Count; i++) {
       var child = _states[i];
-      var parent = this;
 
       Context.RegisterChildLayer();
-      Context.RegisterStateInMap(parent, child, i);
-      child.Context = _context.GetChildContext(parent, i);
+      Context.RegisterStateInMap(key, child.Key, i);
+
+      if (child.Value is not StateMachineNode<TInputData> childMachineNode) {
+        continue;
+      }
+
+      var childContext = Context.GetChildContext(i);
+      childMachineNode.SetAndPropagateContext(childContext, child.Key);
     }
   }
 }

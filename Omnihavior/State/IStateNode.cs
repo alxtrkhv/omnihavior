@@ -4,9 +4,6 @@ namespace Omnihavior.State;
 
 public interface IState<TInputData>
 {
-  public string Key { get; set; }
-  public StateMachineContext<TInputData> Context { get; set; }
-
   public void Enter(TInputData input) { }
   public void Exit(TInputData input) { }
 }

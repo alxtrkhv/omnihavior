@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Omnihavior.State;
 
 // ReSharper disable once CheckNamespace
@@ -12,26 +11,20 @@ namespace Omnihavior.Core;
 /// <typeparam name="TInputData">The type of input data the behavior nodes will operate on.</typeparam>
 public partial class BehaviourBuilder<TInputData>
 {
-  public StateMachineNode<TInputData> StateMachine(string key, List<IStateNode<TInputData>>? states = null,
-    List<ITransition<TInputData>>? transitions = null,
-    StateMachineRules? rules = null, string? defaultState = null)
+  public StateMachineNode<TInputData> StateMachine(StateMachineRules? rules = null, string? defaultState = null)
   {
     return new(
-      key,
-      states,
-      transitions,
-      rules ?? Settings.DefaultStateMachineRules,
-      defaultState
+      rules ?? Settings.DefaultStateMachineRules
     );
   }
 
   public LambdaStateNode<TInputData> LambdaState(string? key = null,
-    Func<TInputData, StateMachineContext<TInputData>, NodeStatus>? tick = null,
-    Action<TInputData, StateMachineContext<TInputData>>? enter = null,
-    Action<TInputData, StateMachineContext<TInputData>>? exit = null,
-    Action<TInputData, StateMachineContext<TInputData>>? reset = null)
+    Func<TInputData, NodeStatus>? tick = null,
+    Action<TInputData>? enter = null,
+    Action<TInputData>? exit = null,
+    Action<TInputData>? reset = null)
   {
-    return new(key, tick, enter, exit, reset);
+    return new(tick, enter, exit, reset);
   }
 
   public LambdaTransition<TInputData> LambdaTransition(string? from, string to,
