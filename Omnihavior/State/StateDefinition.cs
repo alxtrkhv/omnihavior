@@ -2,13 +2,13 @@ using System.Collections.Generic;
 
 namespace Omnihavior.State;
 
-public struct StateEntry<TInputData>
+public struct StateDefinition<TInputData>
 {
   public readonly string Key;
   public IStateNode<TInputData> Value;
   public readonly List<ITransition<TInputData>> Transitions;
 
-  public StateEntry(string key, IStateNode<TInputData> value)
+  public StateDefinition(string key, IStateNode<TInputData> value)
   {
     Key = key;
     Value = value;

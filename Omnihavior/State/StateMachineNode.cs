@@ -16,9 +16,9 @@ public class StateMachineNode<TInputData> : IStateNode<TInputData>
 {
   public const string NullStateKey = "Null";
   private const string RootKey = "Root";
-  public static readonly StateEntry<TInputData> NullState = new(NullStateKey, new NullState<TInputData>());
+  public static readonly StateDefinition<TInputData> NullState = new(NullStateKey, new NullState<TInputData>());
 
-  private readonly List<StateEntry<TInputData>> _states = [];
+  private readonly List<StateDefinition<TInputData>> _states = [];
   private readonly List<ITransition<TInputData>> _globalTransitions = [];
   private readonly StateMachineRules _rules;
 
@@ -27,7 +27,7 @@ public class StateMachineNode<TInputData> : IStateNode<TInputData>
   private int _defaultStateIndex;
   private bool _blockTransitions;
 
-  public StateEntry<TInputData> CurrentState { get; private set; }
+  public StateDefinition<TInputData> CurrentState { get; private set; }
 
   public StateMachineContext<TInputData> Context { get; private set; }
 
@@ -119,11 +119,11 @@ public class StateMachineNode<TInputData> : IStateNode<TInputData>
       return;
     }
 
-    var entry = default(StateEntry<TInputData>?);
+    var entry = default(StateDefinition<TInputData>?);
 
     var index = _states.FindIndex(s => s.Key == transition.From);
     if (index == -1) {
-      entry = new StateEntry<TInputData>(transition.From, NullState.Value);
+      entry = new StateDefinition<TInputData>(transition.From, NullState.Value);
       _states.Add(entry.Value);
     } else {
       entry = _states[index];
@@ -171,7 +171,7 @@ public class StateMachineNode<TInputData> : IStateNode<TInputData>
     CurrentState.Value.Enter(input);
   }
 
-  private StateEntry<TInputData> StateByIndex(ref int targetStateIndex)
+  private StateDefinition<TInputData> StateByIndex(ref int targetStateIndex)
   {
     if (targetStateIndex >= _states.Count) {
       return NullState;
