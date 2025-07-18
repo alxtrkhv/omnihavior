@@ -1,6 +1,6 @@
 using Omnihavior.Core;
 using Omnihavior.Tests.Mocks;
-using Omnihavior.Tests.Tree;
+using Omnihavior.Tests.Trees;
 
 namespace Omnihavior.Tests.Core;
 

@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Omnihavior.Core;
 using Omnihavior.Tests.Mocks;
-using Omnihavior.Tests.Tree;
+using Omnihavior.Tests.Trees;
 using Omnihavior.Utility;
 
 namespace Omnihavior.Tests.Utility;
