@@ -25,7 +25,6 @@ set-version new_version:
 
     print("Checking git status...")
     try:
-        # Check for uncommitted changes
         status_result = subprocess.run(["git", "status", "--porcelain"], check=True, capture_output=True, text=True)
         if status_result.stdout:
             print("Error: Git working directory is not clean. Please commit or stash changes.")
@@ -35,12 +34,11 @@ set-version new_version:
 
         print(f"Setting version to {new_version} in {csproj_path}...")
         content = csproj_path.read_text()
-        # Use regex to replace the version within the <Version> tag
         updated_content, count = re.subn(
             r"(<Version>)(.*?)(</Version>)",
             rf"\g<1>{new_version}\g<3>",
             content,
-            count=1 # Ensure only the first match is replaced
+            count=1
         )
 
         if count == 0:
@@ -69,22 +67,10 @@ set-version new_version:
         command = " ".join(e.cmd)
         print(f"Error executing git command '{command}':")
         print(e.stderr)
-        # Optional: Add revert logic here if needed
-        # print("Attempting to revert changes...")
-        # try:
-        #     csproj_path.write_text(content) # Revert file content
-        #     subprocess.run(["git", "reset", "HEAD", str(csproj_path)], check=True) # Unstage
-        #     # How to handle commit revert? Maybe git reset --hard HEAD~1 ? Risky.
-        #     print(f"Reverted changes in {csproj_path} and unstaged.")
-        # except Exception as revert_e:
-        #     print(f"Failed to revert changes: {revert_e}")
         sys.exit(1)
     except subprocess.CalledProcessError as e:
         print(f"Error creating git tag {tag_name}:")
         print(e.stderr)
-        # Optional: revert csproj change if tagging fails?
-        # csproj_path.write_text(content)
-        # print(f"Reverted changes in {csproj_path}")
         sys.exit(1)
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
