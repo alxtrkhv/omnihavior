@@ -3,16 +3,43 @@ using Omnihavior.Core;
 
 namespace Omnihavior.States;
 
+/// <summary>
+/// Defines rules for customizing the behavior of a <see cref="StateMachineNode{TKey, TInputData}"/>.
+/// </summary>
 public enum StateMachineRules
 {
+  /// <summary>
+  /// Default behavior.
+  /// </summary>
   None = 0,
+
+  /// <summary>
+  /// If set, the state machine will return <see cref="NodeStatus.Success"/> even if the current state returns <see cref="NodeStatus.Failure"/>.
+  /// </summary>
   InterceptChildsFailure = 1 << 0,
+
+  /// <summary>
+  /// If set, the state machine will return <see cref="NodeStatus.Running"/> when the current state returns <see cref="NodeStatus.Success"/>.
+  /// </summary>
   InterceptChildsSuccess = 1 << 1,
+
+  /// <summary>
+  /// If set, errors from the current state do not block transitions from being evaluated.
+  /// </summary>
   NonBlockingErrors = 1 << 2,
 }
 
+/// <summary>
+/// A state machine node that manages multiple states and transitions between them.
+/// The state machine executes the current state and evaluates transitions to determine state changes.
+/// </summary>
+/// <typeparam name="TKey">The type used to identify states.</typeparam>
+/// <typeparam name="TInputData">The type of input data the state machine operates on.</typeparam>
 public class StateMachineNode<TKey, TInputData> : IStateNode<TInputData>
 {
+  /// <summary>
+  /// A special null state used when no valid state is set.
+  /// </summary>
   public static readonly StateDefinition<TKey, TInputData> NullState = new(default!, new NullState<TInputData>());
 
   private readonly Dictionary<TKey, StateDefinition<TKey, TInputData>> _states = [];
@@ -22,8 +49,15 @@ public class StateMachineNode<TKey, TInputData> : IStateNode<TInputData>
   private bool _blockTransitions;
   private TKey _defaultStateKey = default!;
 
+  /// <summary>
+  /// Gets the currently active state definition.
+  /// </summary>
   public StateDefinition<TKey, TInputData> CurrentState { get; private set; }
 
+  /// <summary>
+  /// Initializes a new instance of the <see cref="StateMachineNode{TKey, TInputData}"/> class.
+  /// </summary>
+  /// <param name="rules">The rules governing the state machine's behavior.</param>
   public StateMachineNode(StateMachineRules rules = StateMachineRules.None)
   {
     _rules = rules;
@@ -31,11 +65,16 @@ public class StateMachineNode<TKey, TInputData> : IStateNode<TInputData>
     CurrentState = NullState;
   }
 
+  /// <summary>
+  /// Initializes the state machine by entering the default state.
+  /// </summary>
+  /// <param name="input">The input data for initialization.</param>
   public void InitializeRoot(TInputData input)
   {
     Enter(input);
   }
 
+  /// <inheritdoc/>
   public NodeStatus Tick(TInputData input)
   {
     TryRunTransitions(input);
@@ -62,6 +101,7 @@ public class StateMachineNode<TKey, TInputData> : IStateNode<TInputData>
     }
   }
 
+  /// <inheritdoc/>
   public void Reset(TInputData input)
   {
     foreach (var state in _states) {
@@ -72,21 +112,32 @@ public class StateMachineNode<TKey, TInputData> : IStateNode<TInputData>
     CurrentState = NullState;
   }
 
+  /// <inheritdoc/>
   public void Enter(TInputData input)
   {
     SetState(_defaultStateKey, input);
   }
 
+  /// <inheritdoc/>
   public void Exit(TInputData input)
   {
     SetState(default, input);
   }
 
+  /// <summary>
+  /// Adds a state to the state machine.
+  /// </summary>
+  /// <param name="key">The unique key identifying the state.</param>
+  /// <param name="state">The state node that implements the behavior for this state.</param>
   public void AddState(TKey key, IStateNode<TInputData> state)
   {
     _states[key] = new(key, state);
   }
 
+  /// <summary>
+  /// Adds a transition to the state machine.
+  /// </summary>
+  /// <param name="transition">The transition to add. If the From property is null, it becomes a global transition.</param>
   public void AddTransition(ITransition<TKey, TInputData> transition)
   {
     if (transition.From == null) {
@@ -107,6 +158,10 @@ public class StateMachineNode<TKey, TInputData> : IStateNode<TInputData>
     entry.Value.Transitions.Add(transition);
   }
 
+  /// <summary>
+  /// Sets the default state that the state machine will enter when initialized.
+  /// </summary>
+  /// <param name="stateKey">The key of the state to use as the default.</param>
   public void SetDefaultState(TKey stateKey)
   {
     _defaultStateKey = stateKey;
