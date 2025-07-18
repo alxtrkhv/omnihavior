@@ -5,7 +5,7 @@ namespace Omnihavior.State;
 
 public static class StateMachineNodeExtensions
 {
-  public static void AddState<TInputData>(this StateMachineNode<TInputData> node, string key,
+  public static void AddState<TKey, TInputData>(this StateMachineNode<TKey, TInputData> node, TKey key,
     Func<TInputData, NodeStatus>? tick = null,
     Action<TInputData>? enter = null,
     Action<TInputData>? exit = null,
@@ -15,17 +15,18 @@ public static class StateMachineNodeExtensions
     node.AddState(key, newState);
   }
 
-  public static void AddTransition<TInputData>(this StateMachineNode<TInputData> node, string? from, string to,
+  public static void AddTransition<TKey, TInputData>(this StateMachineNode<TKey, TInputData> node, TKey? from,
+    TKey to,
     Func<TInputData, bool>? condition = null)
   {
-    var newTransition = new LambdaTransition<TInputData>(from, to, condition);
+    var newTransition = new LambdaTransition<TKey, TInputData>(from, to, condition);
     node.AddTransition(newTransition);
   }
 
-  public static void AddTransition<TInputData>(this StateMachineNode<TInputData> node, string to,
+  public static void AddTransition<TKey, TInputData>(this StateMachineNode<TKey, TInputData> node, TKey to,
     Func<TInputData, bool>? condition = null)
   {
-    var newTransition = new LambdaTransition<TInputData>(null, to, condition);
+    var newTransition = new LambdaTransition<TKey, TInputData>(default, to, condition);
     node.AddTransition(newTransition);
   }
 }

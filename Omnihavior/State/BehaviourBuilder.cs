@@ -11,14 +11,15 @@ namespace Omnihavior.Core;
 /// <typeparam name="TInputData">The type of input data the behavior nodes will operate on.</typeparam>
 public partial class BehaviourBuilder<TInputData>
 {
-  public StateMachineNode<TInputData> StateMachine(StateMachineRules? rules = null, string? defaultState = null)
+  public StateMachineNode<TKey, TInputData> StateMachine<TKey>(StateMachineRules? rules = null,
+    string? defaultState = null)
   {
     return new(
       rules ?? Settings.DefaultStateMachineRules
     );
   }
 
-  public LambdaStateNode<TInputData> LambdaState(string? key = null,
+  public LambdaStateNode<TInputData> LambdaState(
     Func<TInputData, NodeStatus>? tick = null,
     Action<TInputData>? enter = null,
     Action<TInputData>? exit = null,
@@ -27,15 +28,15 @@ public partial class BehaviourBuilder<TInputData>
     return new(tick, enter, exit, reset);
   }
 
-  public LambdaTransition<TInputData> LambdaTransition(string? from, string to,
+  public LambdaTransition<TKey, TInputData> LambdaTransition<TKey>(TKey? from, TKey to,
     Func<TInputData, bool>? condition = null)
   {
     return new(from, to, condition);
   }
 
-  public LambdaTransition<TInputData> LambdaTransition(string to,
+  public LambdaTransition<TKey, TInputData> LambdaTransition<TKey>(TKey to,
     Func<TInputData, bool>? condition = null)
   {
-    return new(null, to, condition);
+    return new(default, to, condition);
   }
 }
