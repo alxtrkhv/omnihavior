@@ -63,7 +63,7 @@ public partial class BehaviourBuilder<TInputData>
   }
 
   public InterceptorNode<TInputData> Interceptor(IBehaviorNode<TInputData> child, InterceptionRules? rules = null,
-    NodeStatus? successStatus = NodeStatus.Success)
+    NodeStatus? successStatus = null)
   {
     return new(
       child,

@@ -68,13 +68,19 @@ public class SequenceNode<TInputData> : IBehaviorNode<TInputData>
 
       switch (status) {
         case NodeStatus.Success:
-        case NodeStatus.Failure when _rules.HasFlag(SequenceRules.IgnoreChildsFailure):
           _currentChildIndex++;
           continue;
 
         case NodeStatus.Failure:
           var shouldInterceptChildsFailure = _rules.HasFlag(SequenceRules.InterceptChildsFailure);
           failed = !shouldInterceptChildsFailure;
+
+          var shouldIgnoreChildsFailure = _rules.HasFlag(SequenceRules.IgnoreChildsFailure);
+          if (shouldIgnoreChildsFailure) {
+            _currentChildIndex++;
+            continue;
+          }
+
           break;
 
         case NodeStatus.Running:

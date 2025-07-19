@@ -38,7 +38,7 @@ public static class StateMachineNodeExtensions
   /// <param name="from">The source state key. If null, this becomes a global transition.</param>
   /// <param name="to">The target state key to transition to.</param>
   /// <param name="condition">The function to evaluate the transition condition. If null, the transition is always triggered.</param>
-  public static void AddTransition<TKey, TInputData>(this StateMachineNode<TKey, TInputData> node, TKey? from,
+  public static void AddTransition<TKey, TInputData>(this StateMachineNode<TKey, TInputData> node, TKey from,
     TKey to,
     Func<TInputData, bool>? condition = null)
   {
