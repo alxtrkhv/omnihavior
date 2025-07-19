@@ -23,7 +23,7 @@ You can install Omnihavior directly in Unity using the Package Manager with a Gi
 3. Select **Add package from git URL...**
 4. Enter the following URL:
    ```
-   https://github.com/alxtrkhv/omnihavior.git?path=/Omnihavior.Unity
+   https://github.com/alxtrkhv/omnihavior.git?path=/Omnihavior.Unity#release/v0.1.0
    ```
 5. Click **Add**
 
