@@ -12,6 +12,36 @@ be combined with behavior trees and each other in different ways.
 - **Tree Node System**: All nodes implement `IBehaviorNode<TInputData>`
 - **Configurable Rules**: Customizable behavior through rule enums with meaningful defaults
 
+## Installation
+
+### Unity Package Manager (Recommended)
+
+You can install Omnihavior directly in Unity using the Package Manager with a Git URL:
+
+1. Open Unity and go to **Window > Package Manager**
+2. Click the **+** button in the top-left corner
+3. Select **Add package from git URL...**
+4. Enter the following URL:
+   ```
+   https://github.com/alxtrkhv/omnihavior.git?path=/Omnihavior.Unity
+   ```
+5. Click **Add**
+
+### Manual Installation (Unity)
+
+Alternatively, you can download the compiled DLL:
+
+1. Go to the [Releases page](https://github.com/alxtrkhv/omnihavior/releases)
+2. Download the latest `Omnihavior.dll` from the release assets
+3. Copy the DLL to your Unity project's `Assets/Plugins/` folder
+4. Unity will automatically import the library
+
+### Manual Installation (Other Platforms)
+
+1. Go to the [Releases page](https://github.com/alxtrkhv/omnihavior/releases)
+2. Download the latest `Omnihavior.dll` from the release assets
+3. Import it manually based on the platform/engine you are using
+
 ## Core Concepts
 
 ### Node Status
@@ -407,7 +437,9 @@ var utilityBehavior = new[] { attackNode, defendNode, fleeNode }
 ```
 
 #### Utility AI Rules
+
 ********
+
 ```csharp
 // If multiple nodes have equal scores, select the last one
 UtilityRules.IfEqualSelectLast
