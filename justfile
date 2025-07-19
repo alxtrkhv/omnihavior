@@ -17,10 +17,13 @@ set-version new_version:
     import subprocess
     import sys
     from pathlib import Path
+    import shutil
 
     new_version = "{{ new_version }}"
     csproj_path = Path("Omnihavior/Omnihavior.csproj")
     package_json_path = Path("Omnihavior.Unity/package.json")
+    readme_path = Path("README.md")
+    unity_readme_path = Path("Omnihavior.Unity/README.md")
     tag_name = f"release/v{new_version}"
     commit_message = f"release: v{new_version}"
 
@@ -65,9 +68,29 @@ set-version new_version:
         package_json_path.write_text(updated_package_content)
         print(f"Successfully updated {package_json_path}")
 
-        print(f"Staging {csproj_path} and {package_json_path}...")
-        subprocess.run(["git", "add", str(csproj_path), str(package_json_path)], check=True)
-        print(f"Successfully staged {csproj_path} and {package_json_path}")
+        print(f"Updating UPM install git URL to point to v{new_version}...")
+        readme_content = readme_path.read_text()
+        updated_readme_content, readme_count = re.subn(
+            r'(https://github\.com/alxtrkhv/omnihavior\.git\?path=/Omnihavior\.Unity#release/v)(.*?)(\n)',
+            rf'\g<1>{new_version}\g<3>',
+            readme_content,
+            count=1
+        )
+
+        if readme_count == 0:
+            print(f"Error: Could not find UPM git URL in {readme_path}")
+            sys.exit(1)
+
+        readme_path.write_text(updated_readme_content)
+        print(f"Successfully updated UPM git URL in {readme_path}")
+
+        print(f"Copying {readme_path} to {unity_readme_path}...")
+        shutil.copy2(readme_path, unity_readme_path)
+        print(f"Successfully copied README.md to {unity_readme_path}")
+
+        print(f"Staging {csproj_path}, {package_json_path}, {readme_path}, and {unity_readme_path}...")
+        subprocess.run(["git", "add", str(csproj_path), str(package_json_path), str(readme_path), str(unity_readme_path)], check=True)
+        print(f"Successfully staged all files")
 
         print(f"Creating git commit with message '{commit_message}'...")
         subprocess.run(["git", "commit", "-m", commit_message], check=True, capture_output=True, text=True)
@@ -82,6 +105,8 @@ set-version new_version:
             print(f"Error: {csproj_path} not found.")
         elif "package.json" in str(e):
             print(f"Error: {package_json_path} not found.")
+        elif "README.md" in str(e):
+            print(f"Error: {readme_path} not found.")
         else:
             print(f"Error: File not found - {e}")
         sys.exit(1)
