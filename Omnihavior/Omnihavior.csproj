@@ -2,11 +2,131 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.1</TargetFramework>
-        <LangVersion>13</LangVersion>
+        <LangVersion>9</LangVersion>
         <Nullable>enable</Nullable>
         <Version>0.1.0-dev.4</Version>
         <Title>Omnihavior</Title>
         <Authors>Aleksandras Terechovas(Aleksandr Terekhov)</Authors>
     </PropertyGroup>
+
+    <ItemGroup>
+      <Compile Include="..\Omnihavior.Unity\Runtime\Builder.cs">
+        <Link>Builder.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\Core\BehaviourBuilder.cs">
+        <Link>Core\BehaviourBuilder.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\Core\BehaviourBuilderSettings.cs">
+        <Link>Core\BehaviourBuilderSettings.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\Core\CustomBehavior.cs">
+        <Link>Core\CustomBehavior.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\Core\IBehaviorNode.cs">
+        <Link>Core\IBehaviorNode.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\Core\IEvaluatable.cs">
+        <Link>Core\IEvaluatable.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\Core\LambdaEvaluation.cs">
+        <Link>Core\LambdaEvaluation.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\Core\LambdaNode.cs">
+        <Link>Core\LambdaNode.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\Core\NodeExtensions.cs">
+        <Link>Core\NodeExtensions.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\States\BehaviourBuilder.cs">
+        <Link>States\BehaviourBuilder.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\States\BehaviourBuilderSettings.cs">
+        <Link>States\BehaviourBuilderSettings.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\States\IStateNode.cs">
+        <Link>States\IStateNode.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\States\ITransition.cs">
+        <Link>States\ITransition.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\States\LambdaStateNode.cs">
+        <Link>States\LambdaStateNode.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\States\LambdaTransition.cs">
+        <Link>States\LambdaTransition.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\States\NodeExtensions.cs">
+        <Link>States\NodeExtensions.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\States\NullState.cs">
+        <Link>States\NullState.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\States\StateDefinition.cs">
+        <Link>States\StateDefinition.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\States\StateMachineNode.cs">
+        <Link>States\StateMachineNode.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\States\StateMachineNodeExtensions.cs">
+        <Link>States\StateMachineNodeExtensions.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\Trees\BehaviourBuilder.cs">
+        <Link>Trees\BehaviourBuilder.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\Trees\BehaviourBuilderSettings.cs">
+        <Link>Trees\BehaviourBuilderSettings.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\Trees\ConditionalNode.cs">
+        <Link>Trees\ConditionalNode.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\Trees\FakeNode.cs">
+        <Link>Trees\FakeNode.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\Trees\InterceptorNode.cs">
+        <Link>Trees\InterceptorNode.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\Trees\InverterNode.cs">
+        <Link>Trees\InverterNode.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\Trees\LimitNode.cs">
+        <Link>Trees\LimitNode.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\Trees\NodeExtensions.cs">
+        <Link>Trees\NodeExtensions.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\Trees\ParallelNode.cs">
+        <Link>Trees\ParallelNode.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\Trees\ResetterNode.cs">
+        <Link>Trees\ResetterNode.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\Trees\SelectorNode.cs">
+        <Link>Trees\SelectorNode.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\Trees\SequenceNode.cs">
+        <Link>Trees\SequenceNode.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\Trees\ThrottleNode.cs">
+        <Link>Trees\ThrottleNode.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\Utility\BehaviourBuilder.cs">
+        <Link>Utility\BehaviourBuilder.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\Utility\BehaviourBuilderSettings.cs">
+        <Link>Utility\BehaviourBuilderSettings.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\Utility\IEvaluatableNode.cs">
+        <Link>Utility\IEvaluatableNode.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\Utility\LambdaEvaluatableNode.cs">
+        <Link>Utility\LambdaEvaluatableNode.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\Utility\NodeExtensions.cs">
+        <Link>Utility\NodeExtensions.cs</Link>
+      </Compile>
+      <Compile Include="..\Omnihavior.Unity\Runtime\Utility\UtilityNode.cs">
+        <Link>Utility\UtilityNode.cs</Link>
+      </Compile>
+    </ItemGroup>
 
 </Project>

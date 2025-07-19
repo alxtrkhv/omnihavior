@@ -1,0 +1,12 @@
+{
+  "name": "com.alxtrkhv.omnihavior",
+  "version": "0.1.0-dev.4",
+  "displayName": "Omnihavior",
+  "author": {
+    "name": "Aleksandras Terechovas(Aleksandr Terekhov)",
+    "email": "alex@alxtrkhv.io"
+  },
+  "description": "Yet another game AI behavior library.",
+  "dependencies": {
+  }
+}
